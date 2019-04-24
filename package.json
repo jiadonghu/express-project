@@ -1,0 +1,21 @@
+{
+  "name": "anotherproject",
+  "version": "1.0.0",
+  "description": "just a resiful api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Jiadong Hu",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.2",
+    "express-validator": "^5.3.1",
+    "jsonwebtoken": "^8.5.0",
+    "mysql2": "^1.5.1",
+    "sequelize": "^5.1.0"
+  }
+}
