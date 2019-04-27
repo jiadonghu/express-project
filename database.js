@@ -9,7 +9,6 @@ let _db_instance = new Sequelize({
   dialect  : Config.mysql.dialect,
 });
 
-
 module.exports = {
   mysql : _db_instance
 };

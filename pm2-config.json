@@ -1,10 +1,10 @@
 {
     "name"             : "node-app-api",
     "args"             : ["--color"],
-    "script"           : "./index.js",
-    "instances"        : 2,
+    "script"           : "./app.js",
+    "instances"        : 1,
     "watch"            : true,
-    "ignore_watch"      : ["node_modules"],
+    "ignore_watch"     : ["node_modules"],
     "merge_logs"       : true,
     "exec_interpreter" : "node",
     "exec_mode"        : "cluster"

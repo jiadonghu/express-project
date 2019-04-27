@@ -1,7 +1,7 @@
-const Mysql = require('../database').mysql;
-const Sequelize = require('sequelize');
+const Mysql       = require('../database').mysql;
+const Sequelize   = require('sequelize');
 
-const User = Mysql.define('User', {
+module.exports = Mysql.define('User', {
     id : { 
         type          : Sequelize.INTEGER, 
         primaryKey    : true, 
@@ -12,14 +12,14 @@ const User = Mysql.define('User', {
         unique    : true,
         allowNull : false,
         validate  : {
-            isEmail: true,  
+            isEmail : true,  
         }
     },
     name : {
         type : Sequelize.STRING(100),
     },
     password : {
-        type      : Sequelize.STRING(100),
+        type      : Sequelize.TEXT,
         allowNull : false,
     }
 }, {
@@ -27,5 +27,3 @@ const User = Mysql.define('User', {
     createdAt : false,
     updatedAt : false
 });
-
-module.exports = User;
