@@ -98,8 +98,6 @@ describe('Model User:', () => {
         })().catch(done);
     })
 
-
-    
      after(done => {
         done();
     });

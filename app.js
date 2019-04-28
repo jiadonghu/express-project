@@ -6,7 +6,7 @@ const App            = Express();
 const BodyParser     = require('body-parser');
 const Router         = Express.Router();
 
-App.use(ExpJwt({ secret: Config.jwt.secret}).unless({path: ['/login']}));
+App.use(ExpJwt({ secret: Config.jwt.secret}).unless({path: ['/login', '/register']}));
 Router.use(BodyParser.urlencoded({ extended: false }));
 Router.use(BodyParser.json());
 
@@ -20,7 +20,7 @@ App.use('/', Router);
 App.use(function (err, req, res, next) {
 
     // from express jwt
-    if (err.name === 'UnauthorizedError') {
+    if (err.code === 'invalid_token') {
       return res.status(401).json('invalid token');
     }
 

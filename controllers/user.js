@@ -6,17 +6,19 @@ const Permissions      = require('../utils/permissions');
 const ValidationResult = require('express-validator/check').validationResult;
 const AuthService      = require('../services/auth');
 const UserService      = require('../services/user');
-const HttpError        = require('http-errors');
 
 module.exports = {
     
     routes : [
         {
-            route : '/user', method : 'get', function : 'GetUser', 
+            route : '/user/:user_id', method : 'get', function : 'GetUser', 
         },
         {
             route : '/login', method : 'post', function : 'Login', 
-        }
+        },
+        {
+            route : '/register', method : 'post', function : 'Register', 
+        },
     ],
 
     
@@ -29,20 +31,16 @@ module.exports = {
      * @return  {Null}         
      */
     GetUser : async (req, res, next) => {
+      
+        AuthService.IsUser(req.user.permissions, req.params.user_id);
 
-        let errors = ValidationResult(req);
+        let user = await UserService.GetUser(req.params.user_id);
 
-        throw new HttpError(409, 'asd')
-
-        let user = await User.findOne({
-            where : { name: 'FIRSTUSER' }
-        });
-
-        res.json('user');
+        res.status(200).json(user);
 
     },
 
-   /**
+    /**
      * Login
      *
      * @param   {Obj}   req     - Express request object.
@@ -55,6 +53,25 @@ module.exports = {
         let token = await UserService.Login(req.body.email, req.body.password);
 
         res.status(200).json({ token: token });
+    },
+
+    /**
+     * Register
+     *
+     * @param   {Obj}   req     - Express request object.
+     * @param   {Obj}   res     - Express response object.
+     * @param   {Func}  next    - Express next()
+     * @return  {Null}         
+     */
+    Register : async (req, res, next) => {
+
+        let token = await UserService.Register({
+            email    : req.body.email,
+            password : req.body.password,
+            name     : req.body.name
+        });
+        
+        res.status(201).json({ token: token });
     }
 
 

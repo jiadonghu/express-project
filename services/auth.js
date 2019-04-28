@@ -1,5 +1,6 @@
 
 const Premissions = require('../utils/permissions');
+const HttpError   = require('http-errors'); 
 
 module.exports = {
 
@@ -11,9 +12,15 @@ module.exports = {
      * @returns {boolean}                 
      */
     IsUser : (permissons, user_id) => {
-        return (
-            (permissons.indexOf(Premissions.VALID_USER(user_id))) > -1 
-        );
+
+        if (
+            Array.isArray(permissons) && 
+            permissons.indexOf(Premissions.VALID_USER(user_id)) > -1 
+        ) {
+            return true;
+        }
+        
+        throw new HttpError(401, 'Not Authorized');
     },
 
     /**
@@ -24,9 +31,15 @@ module.exports = {
      * @returns {boolean}                 
      */
     IsVisitor : (permissons) => {
-        return (
-            (permissons.indexOf(Premissions.VISITOR(user_id))) > -1 
-        );
+
+        if (
+            Array.isArray(permissons) && 
+            permissons.indexOf(Premissions.VISITOR(user_id)) > -1 
+        ) {
+            return true;
+        }
+        
+        throw new HttpError(401, 'Not Authorized');
     }
 
 };
