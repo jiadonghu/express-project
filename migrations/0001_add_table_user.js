@@ -12,16 +12,11 @@ const queries = {
     `
 };
 
-describe('Migrating user table:', function () {
+describe('Migrating user table:', () => {
 
-    it('Add table user if not exists', done => {
+    it('Add table user if not exists', async () => {
 
-        (async () => {
-            
-            await Mysql.query(queries.add_user_table);
-            done();
+        await Mysql.query(queries.add_user_table);        
         
-        })().catch(done);
-        
-    })
+    });
 });

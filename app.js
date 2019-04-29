@@ -19,11 +19,11 @@ App.use(function (err, req, res, next) {
 
     // from express jwt
     if (err.status === 401) {
-      return res.status(401).json({ message: 'invalid token' });
+      return res.status(401).json('invalid token');
     }
 
     if (err.statusCode) {
-      return res.status(err.statusCode).json({ message: err.message });
+      return res.status(err.statusCode).json(err.message);
     }
 
     // Unexpected error
