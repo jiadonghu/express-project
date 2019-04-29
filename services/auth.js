@@ -34,7 +34,7 @@ module.exports = {
 
         if (
             Array.isArray(permissons) && 
-            permissons.indexOf(Premissions.VISITOR(user_id)) > -1 
+            permissons.indexOf(Premissions.VISITOR) > -1 
         ) {
             return true;
         }

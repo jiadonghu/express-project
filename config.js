@@ -10,6 +10,10 @@ const config = {
         jwt : {
             secret : 'mylittlehonda',
             expire : 86400
+        },
+        api : {
+            port : 3000,
+            url  : 'http://localhost:3000/' 
         }
     },
     test : {
@@ -23,6 +27,10 @@ const config = {
         jwt : {
             secret : 'mylittlehonda',
             expire : 86400
+        },
+        api : {
+            port : 3000,
+            url  : 'http://localhost:3000/' 
         }
     }
 };

@@ -15,15 +15,19 @@ module.exports = {
      * @returns {string}             - jwt token
      */
     Login : async (email, password) => {
-
-        let encoded_pwd = Crypto.createHash('sha256').update(password).digest('base64');
         
         let user = await User.findOne({
-            where : { email: email, password: encoded_pwd }
+            where : { email: email }
         });
     
         if (!user) {
-            throw new HttpError(404, 'User Not Found');
+            throw new HttpError(404, 'user not found');
+        }
+
+        let encoded_pwd = Crypto.createHash('sha256').update(password).digest('base64');
+
+        if (user.password !== encoded_pwd) {
+            throw new HttpError(401, 'incorrect password');
         }
     
         let token = Jwt.sign(
@@ -31,6 +35,7 @@ module.exports = {
                 user_id     : user.id, 
                 name        : user.name, 
                 permissions : [
+                    Permissions.VISITOR,
                     Permissions.VALID_USER(user.id)
                 ] 
             },
@@ -60,15 +65,20 @@ module.exports = {
             throw HttpError(409, 'email already exist');
         }
 
-        user.password = Crypto.createHash('sha256').update(user.password).digest('base64');
+        let encoded_pwd = Crypto.createHash('sha256').update(user.password).digest('base64');
 
-        let new_user = User.create(user);
+        let new_user = await User.create({
+            email    : user.email,
+            name     : user.name,
+            password : encoded_pwd
+        });
 
         let token = Jwt.sign(
             { 
                 user_id     : new_user.id, 
                 name        : new_user.name, 
                 permissions : [
+                    Permissions.VISITOR,
                     Permissions.VALID_USER(new_user.id)
                 ] 
             },
@@ -84,7 +94,7 @@ module.exports = {
      * Get User
      *
      * @param   {int}      user_id     - user id
-     * @returns {user}                 - user instance
+     * @returns {user}                 - user object
      */
     GetUser : async (user_id) => {
 
@@ -93,10 +103,14 @@ module.exports = {
         });
 
         if (!user) {
-            throw new HttpError(404, 'User Not Found');
+            throw new HttpError(404, 'user not found');
         }
 
-        return user;
+        return {
+            id    : user.id,
+            email : user.email,
+            name  : user.name
+        };
 
     }
     

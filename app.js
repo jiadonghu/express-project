@@ -4,32 +4,30 @@ const Config         = require('./config');
 const ExpJwt         = require('express-jwt');
 const App            = Express();
 const BodyParser     = require('body-parser');
-const Router         = Express.Router();
 
-App.use(ExpJwt({ secret: Config.jwt.secret}).unless({path: ['/login', '/register']}));
-Router.use(BodyParser.urlencoded({ extended: false }));
-Router.use(BodyParser.json());
+App.use(ExpJwt({ secret: Config.jwt.secret }).unless({ path: ['/login', '/register'] }));
+App.use(BodyParser.urlencoded({ extended: false }));
+App.use(BodyParser.json());
 
-RouterRegister.Register(Router, 
+RouterRegister.Register(App, 
   {
     'User' : require('./controllers/user')
   }
 );
 
-App.use('/', Router);
 App.use(function (err, req, res, next) {
 
     // from express jwt
-    if (err.code === 'invalid_token') {
-      return res.status(401).json('invalid token');
+    if (err.status === 401) {
+      return res.status(401).json({ message: 'invalid token' });
     }
 
     if (err.statusCode) {
-      return res.status(err.statusCode).json(err.message);
+      return res.status(err.statusCode).json({ message: err.message });
     }
 
     // Unexpected error
     throw err;
 });
 
-App.listen(3000);
+App.listen(Config.api.port);

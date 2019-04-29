@@ -6,7 +6,7 @@ module.exports = {
     /**
      * If permissions indicated a visitor 
      *
-     * @param   {obj}      app            - express router object
+     * @param   {obj}      app            - express instance
      * @param   {obj}      controllers    - controllers to be registered
      * @returns {null}                 
      */
