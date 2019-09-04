@@ -1,31 +1,29 @@
 const Express        = require('express');
 const RouterRegister = require('./utils/controller_register');
 const Config         = require('./config');
-const ExpJwt         = require('express-jwt');
 const App            = Express();
 const BodyParser     = require('body-parser');
+const Token          = require('./utils/token');
+const Cors           = require('cors');
 
-App.use(ExpJwt({ secret: Config.jwt.secret }).unless({ path: ['/login', '/register'] }));
+App.use(Cors());
+App.use(Token.Decode);
 App.use(BodyParser.urlencoded({ extended: false }));
 App.use(BodyParser.json());
 
 RouterRegister.Register(App, 
   {
-    'User' : require('./controllers/user')
+    'User' : require('./controllers/user'),
+    'Post' : require('./controllers/post')
   }
 );
 
 App.use(function (err, req, res, next) {
 
-    // from express jwt
-    if (err.status === 401) {
-      return res.status(401).json('invalid token');
-    }
-
     if (err.statusCode) {
       return res.status(err.statusCode).json(err.message);
     }
-
+    
     // Unexpected error
     throw err;
 });

@@ -12,15 +12,15 @@ module.exports = {
      */
     Register : (app, controllers) => {
 
+        //  handle rejected promises
         let wrap_async = (fn) => {
-
             return (req, res, next) => {
                 fn(req, res, next).catch(next);
             };
         };
 
         let validate_params = (req, res, next) => {
-
+        
             let errors = ValidationResult(req);
            
             if (!errors.isEmpty()) {

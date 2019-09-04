@@ -32,7 +32,7 @@ module.exports = {
      */
     GetUser : async (req, res, next) => {
       
-        AuthService.IsUser(req.user.permissions, req.params.user_id);
+        AuthService.IsUser(req.permissions, req.params.user_id);
 
         let user = await UserService.GetUser(req.params.user_id);
 

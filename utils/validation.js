@@ -1,10 +1,10 @@
 const Check = require('express-validator/check').check;
 
-let validation = {};
+let Validation = {};
  
-validation.User = {
+Validation.User = {
     GetUser : [
-        Check('user_id').isInt(),
+        Check('user_id').isInt()
     ],
     Login : [
         Check('email').isEmail(),
@@ -17,4 +17,15 @@ validation.User = {
     ]
 };
 
-module.exports = validation;
+Validation.Post = {
+    GetPost : [
+        Check('id').isInt(),
+    ],
+    CreatPost : [
+        Check('title').exists().isLength({ max: 100 }),
+        Check('content').optional(),
+        Check('tags').optional()
+    ],
+}
+
+module.exports = Validation;
