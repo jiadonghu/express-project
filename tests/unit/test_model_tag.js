@@ -65,6 +65,16 @@ describe('Model Tag:', () => {
 
     });
 
+    it('Tag.SearchByName should search by tag name', async () => {
+        
+        let tags = await Tag.SearchByName(
+            instances.tag_1.name.substring(1, instances.tag_1.name.length - 1)
+        );
+        
+        tags.map(tag => tag.name).indexOf(instances.tag_1.name).should.aboveOrEqual(0);
+
+    });
+
     it('tag.destroy should delete tag', async () => {
 
         await instances.tag_1.destroy();

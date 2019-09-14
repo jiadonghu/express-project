@@ -21,8 +21,7 @@ const BlogPost = Mysql.define('BlogPost', {
         type : Sequelize.STRING(255)
     },
     content : {
-        type      : Sequelize.TEXT,
-        allowNull : false,
+        type      : Sequelize.TEXT
     },
     published : {
         type      : Sequelize.BOOLEAN,
@@ -36,20 +35,20 @@ const BlogPost = Mysql.define('BlogPost', {
 
 // Instance Methods
 
-BlogPost.prototype.syncTags = async function(new_tags) {
+BlogPost.prototype.syncTags = async function(new_tag_ids) {
 
-    let new_tag_ids = new_tags.map(tag => tag.id);
+    let tag_ids_clone = [...new_tag_ids];
     let db_post_tags = await PostTag.findAll({ where: { post_id: this.id } });
 
     for (let item of db_post_tags) {
-        if (new_tag_ids.indexOf(item.id) == -1) {
+        if (tag_ids_clone.indexOf(item.id) == -1) {
             await item.destroy();
         } else {
-            new_tag_ids.splice(new_tag_ids.indexOf(item.id), 1);
+            tag_ids_clone.splice(tag_ids_clone.indexOf(item.id), 1);
         }
     }
    
-    for (let tag_id of new_tag_ids) {
+    for (let tag_id of tag_ids_clone) {
         await PostTag.create({
             post_id : this.id,
             tag_id  : tag_id

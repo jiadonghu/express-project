@@ -5,7 +5,8 @@ module.exports = {
 
     Random : () => {
         return {
-            name : chance.word()
+            // never rturn the same name
+            name : chance.guid().toString()
         };
     }
 

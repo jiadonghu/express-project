@@ -1,5 +1,6 @@
 const Mysql       = require('../database').mysql;
 const Sequelize   = require('sequelize');
+const Op          = Sequelize.Op;
 
 const Tag = Mysql.define('Tag', {
     id : { 
@@ -15,6 +16,16 @@ const Tag = Mysql.define('Tag', {
     createdAt : false,
     updatedAt : false,
 });
+
+Tag.SearchByName = async (name = '') => {
+    return await Tag.findAll({
+        where : {
+          name : {
+            [Op.like]: '%' + name + '%'
+          }
+        }
+      });
+};
 
 module.exports = Tag;
 

@@ -10,7 +10,7 @@ const Config      = require('../../config');
 describe('Controller User', () => {
 
     let fixtures = {
-        test_user_1 : UserFixture.RandomUser(),
+        test_user_1 : UserFixture.Random(),
     };
 
     let instance = {};
@@ -162,14 +162,14 @@ describe('Controller User', () => {
         fixtures.token = result.body.token;
     });
 
-    it('Get: /user/:user_id should return 400 when params are invalid', async () => {
+    it('Get: /user/:id should return 400 when params are invalid', async () => {
         let invalid_id = 'fake_id';
         let result = await Request({
             method  : 'GET',
             uri     : Config.api.url + 'user/' + invalid_id,
             headers : {
                 'Content-Type'  : 'application/json',
-                'authorization' : 'Bearer ' + fixtures.token
+                'authorization' :  fixtures.token
             },
             json                    : true,
             resolveWithFullResponse : true,
@@ -179,20 +179,19 @@ describe('Controller User', () => {
         result.statusCode.should.equal(400);
     });
 
-    it('Get: /user/:user_id should return user', async () => {
+    it('Get: /user/:id should return user', async () => {
 
         let user = await User.findOne({
             where : { email: fixtures.test_user_1.email }
         });
 
         instance.user = user;
-       
         let result = await Request({
             method  : 'GET',
             uri     : Config.api.url + 'user/' + user.id,
             headers : {
                 'Content-Type'  : 'application/json',
-                'authorization' : 'Bearer ' + fixtures.token
+                'authorization' :  fixtures.token
             },
             json                    : true,
             resolveWithFullResponse : true,
@@ -211,7 +210,7 @@ describe('Controller User', () => {
             uri     : Config.api.url + 'user/' + invalid_id,
             headers : {
                 'Content-Type'  : 'application/json',
-                'authorization' : 'Bearer ' + 'token'
+                'authorization' : 'token'
             },
             json                    : true,
             resolveWithFullResponse : true,
@@ -231,7 +230,7 @@ describe('Controller User', () => {
             uri     : Config.api.url + 'user/' + instance.user.id,
             headers : {
                 'Content-Type'  : 'application/json',
-                'authorization' : 'Bearer ' + fixtures.token
+                'authorization' : fixtures.token
             },
             json                    : true,
             resolveWithFullResponse : true,

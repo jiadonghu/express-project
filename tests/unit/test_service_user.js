@@ -13,7 +13,7 @@ const Config      = require('../../config');
 describe('Sevice User:', () => {
 
     let fixtures = {
-        test_user : UserFixture.RandomUser()
+        test_user : UserFixture.Random()
     };
     
     let instance = {};

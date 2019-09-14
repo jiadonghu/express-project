@@ -8,8 +8,8 @@ const UserFixture = require('../fixtures/user');
 describe('Model User:', () => {
 
     let fixtures = {
-        test_user_1 : UserFixture.RandomUser(),
-        test_user_2 : UserFixture.RandomUser()
+        test_user_1 : UserFixture.Random(),
+        test_user_2 : UserFixture.Random()
     };
     
     let instance = {};
@@ -48,7 +48,7 @@ describe('Model User:', () => {
 
     it('user.save should save user', async () => {
         
-        let another_user = UserFixture.RandomUser();
+        let another_user = UserFixture.Random();
         
         instance.test_user_1.name = another_user.name;
         await instance.test_user_1.save();

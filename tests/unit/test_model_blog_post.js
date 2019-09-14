@@ -84,7 +84,7 @@ describe('Model Blog Post:', () => {
 
     it('blogpost.syncTag should sync tag for blog post', async () => {
 
-        await instances.test_post_1.syncTags([instances.tag_1, instances.tag_2]);
+        await instances.test_post_1.syncTags([instances.tag_1.id, instances.tag_2.id]);
 
         let post_tags = await PostTag.findAll({
             where : { post_id: instances.test_post_1.id }
@@ -94,7 +94,7 @@ describe('Model Blog Post:', () => {
             [instances.tag_1.id, instances.tag_2.id]
         );
 
-        await instances.test_post_1.syncTags([instances.tag_1]);
+        await instances.test_post_1.syncTags([instances.tag_1.id]);
 
         post_tags = await PostTag.findAll({
             where : { post_id: instances.test_post_1.id }

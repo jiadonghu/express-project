@@ -17,7 +17,7 @@ const queries = {
         title VARCHAR(100) NOT NULL,
         image VARCHAR(255),
         published tinyint(1) NOT NULL,
-        content TEXT NOT NULL,
+        content TEXT,
         PRIMARY KEY (id)
     ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
     `,

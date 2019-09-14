@@ -14,16 +14,20 @@ App.use(BodyParser.json());
 RouterRegister.Register(App, 
   {
     'User' : require('./controllers/user'),
-    'Post' : require('./controllers/post')
+    'Post' : require('./controllers/post'),
+    'Tag'  : require('./controllers/tag')
   }
 );
 
+// handle error and response
 App.use(function (err, req, res, next) {
 
     if (err.statusCode) {
       return res.status(err.statusCode).json(err.message);
     }
     
+    console.log('----------')
+    console.log(err.message)
     // Unexpected error
     throw err;
 });

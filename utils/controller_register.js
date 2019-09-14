@@ -1,10 +1,10 @@
 const Validations      = require('./validation');
-const ValidationResult = require('express-validator/check').validationResult;
+const { validationResult } = require('express-validator');
 
 module.exports = {
     
     /**
-     * If permissions indicated a visitor 
+     * Register controllers and validate middlewares to express
      *
      * @param   {obj}      app            - express instance
      * @param   {obj}      controllers    - controllers to be registered
@@ -19,9 +19,10 @@ module.exports = {
             };
         };
 
+        // recieve validate error before process to controller function
         let validate_params = (req, res, next) => {
         
-            let errors = ValidationResult(req);
+            let errors = validationResult(req);
            
             if (!errors.isEmpty()) {
                 let messages = errors.array().map(err_obj => {
