@@ -1,4 +1,4 @@
-const Premissions = require('./permissions');
+const premissions = require('./permissions');
 const HttpError   = require('http-errors'); 
 
 module.exports = {
@@ -7,14 +7,14 @@ module.exports = {
      * If permissions indicated a valid user 
      *
      * @param   {array}    permissons     - array of user's permissions
-     * @param   {int}      user_id        - user id
+     * @param   {int}      userId         - user id
      * @returns {boolean}                 
      */
-    IsUser : (permissons, user_id) => {
+    isUser : (permissons, userId) => {
 
         if (
             Array.isArray(permissons) && 
-            permissons.indexOf(Premissions.VALID_USER(user_id)) > -1 
+            permissons.indexOf(premissions.VALID_USER(userId)) > -1 
         ) {
             return true;
         }
@@ -26,14 +26,14 @@ module.exports = {
      * If permissions indicated a visitor 
      *
      * @param   {array}    permissons     - array of user's permissions
-     * @param   {int}      user_id        - user id
+     * @param   {int}      userId         - user id
      * @returns {boolean}                 
      */
-    IsVisitor : (permissons) => {
+    isVisitor : (permissons) => {
 
         if (
             Array.isArray(permissons) && 
-            permissons.indexOf(Premissions.VISITOR) > -1 
+            permissons.indexOf(premissions.VISITOR) > -1 
         ) {
             return true;
         }

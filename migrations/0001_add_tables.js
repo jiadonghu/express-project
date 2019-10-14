@@ -1,38 +1,42 @@
-const Mysql = require('../database').mysql;
+const { mysql }   = require('../database');
 
 const queries = {
-    add_user_table : `
+    addUserTable : `
     CREATE TABLE IF NOT EXISTS user(
         id INT NOT NULL AUTO_INCREMENT,
         email VARCHAR(255) NOT NULL UNIQUE,
         name VARCHAR(100) NOT NULL,
         password TEXT NOT NULL,
+        
         PRIMARY KEY (id)
     ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
     `,
-    add_blog_post_table : `
+    addPostTable : `
     CREATE TABLE IF NOT EXISTS blog_post(
         id INT NOT NULL AUTO_INCREMENT,
-        user_id INT NOT NULL,
+        userId INT NOT NULL,
         title VARCHAR(100) NOT NULL,
         image VARCHAR(255),
         published tinyint(1) NOT NULL,
         content TEXT,
+      
         PRIMARY KEY (id)
     ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
     `,
-    add_tag_table : `
+    addTagTable : `
     CREATE TABLE IF NOT EXISTS tag(
         id INT NOT NULL AUTO_INCREMENT,
         name VARCHAR(100) NOT NULL,
+        
         PRIMARY KEY (id)
     ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
     `,
-    add_post_tag_table : `
+    addPostTagTable : `
     CREATE TABLE IF NOT EXISTS post_tag(
         id INT NOT NULL AUTO_INCREMENT,
-        post_id INT NOT NULL,
-        tag_id INT NOT NULL,
+        postId INT NOT NULL,
+        tagId INT NOT NULL,
+       
         PRIMARY KEY (id)
     ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
     `
@@ -41,16 +45,16 @@ const queries = {
 describe('Adding tables:', () => {
 
     it('Add table user if not exists', async () => {
-        await Mysql.query(queries.add_user_table);        
+        await mysql.query(queries.addUserTable);        
     });
     it('Add table blog_post if not exists', async () => { 
-        await Mysql.query(queries.add_blog_post_table);  
+        await mysql.query(queries.addPostTable);  
     });
     it('Add table tag if not exists', async () => {
-        await Mysql.query(queries.add_tag_table);          
+        await mysql.query(queries.addTagTable);          
     });
     it('Add table post_tag if not exists', async () => {
-        await Mysql.query(queries.add_post_tag_table);  
+        await mysql.query(queries.addPostTagTable);  
     });
 
 });

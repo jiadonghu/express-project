@@ -1,7 +1,7 @@
-const Mysql       = require('../database').mysql;
+const { mysql }   = require('../database');
 const Sequelize   = require('sequelize');
 
-module.exports = Mysql.define('User', {
+ const User = mysql.define('User', {
     id : { 
         type          : Sequelize.INTEGER, 
         primaryKey    : true, 
@@ -27,3 +27,5 @@ module.exports = Mysql.define('User', {
     createdAt : false,
     updatedAt : false
 });
+
+module.exports = User;

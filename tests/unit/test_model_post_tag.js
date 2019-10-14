@@ -1,66 +1,66 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const {Tag, BlogPost, PostTag} = require('../../models');
-const {TagFixture, PostFixture} = require('../fixtures');
-const Should = require('should');
+const {Tag, Post, PostTag} = require('../../models');
+const {tagFixture, postFixture} = require('../fixtures');
+const should = require('should');
 
 describe('Model PostTag:', () => {
 
     let fixtures = {
-        tag  : TagFixture.Random(),
-        post : PostFixture.Random()
+        tag  : tagFixture.random(),
+        post : postFixture.random()
     };
 
     let instances = {};
 
     before(async () => {
         instances.tag = await Tag.create(fixtures.tag);
-        instances.post = await BlogPost.create(fixtures.post);
+        instances.post = await Post.create(fixtures.post);
     });
 
     it('PostTag.create should create new post tag', async () => {
 
-        let post_tag = await PostTag.create({
-            post_id : instances.post.id,
-            tag_id  : instances.tag.id
+        let postTag = await PostTag.create({
+            postId : instances.post.id,
+            tagId  : instances.tag.id
         });
     
-        Should.exist(post_tag.id);
-        instances.post_tag = post_tag;
+        should.exist(postTag.id);
+        instances.postTag = postTag;
 
     });
 
     it('PostTag.findOne should find one post tag', async () => {
 
-        let post_tag = await PostTag.findOne({
-            where : { id: instances.post_tag.id }
+        let postTag = await PostTag.findOne({
+            where : { id: instances.postTag.id }
         });
       
-        post_tag.tag_id.should.eql(instances.post_tag.tag_id);
-        post_tag.post_id.should.eql(instances.post_tag.post_id);
+        postTag.tagId.should.eql(instances.postTag.tagId);
+        postTag.postId.should.eql(instances.postTag.postId);
         
     });
 
     it('PostTag.findAll should find all post tags', async () => {
 
-        let post_tags = await PostTag.findAll({
-            where : { post_id: instances.post.id }
+        let postTags = await PostTag.findAll({
+            where : { postId: instances.post.id }
         });
         
-        post_tags.map(item => item.id).indexOf(instances.post_tag.id).should.aboveOrEqual(0);
+        postTags.map(item => item.id).indexOf(instances.postTag.id).should.aboveOrEqual(0);
 
     });
 
     it('PostTag.destroy should delete post tag', async () => {
 
-        await instances.post_tag.destroy();
+        await instances.postTag.destroy();
 
-        let post_tag = await PostTag.findOne({
-            where : { id: instances.post_tag.id }
+        let postTag = await PostTag.findOne({
+            where : { id: instances.postTag.id }
         });
 
-        Should.not.exist(post_tag);
+        should.not.exist(postTag);
     });
 
     after(async () => {

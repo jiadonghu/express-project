@@ -1,4 +1,4 @@
-const Auth         = require('../utils/auth');
+const auth         = require('../utils/auth');
 const HttpError    = require('http-errors'); 
 const {Tag}        = require('../models');
 
@@ -6,10 +6,10 @@ module.exports = {
     
     routes : [
         {
-            route : '/tag', method : 'post', function : 'CreateTag', 
+            route : '/tag', method : 'post', function : 'createTag', 
         },
         {
-            route : '/tags/search', method : 'get', function : 'SearchTags', 
+            route : '/tags/search', method : 'get', function : 'searchTags', 
         }
     ],
 
@@ -21,9 +21,9 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    CreateTag : async (req, res, next) => {
+    createTag : async (req, res, next) => {
 
-        Auth.IsUser(req.permissions, req.user_id);
+        auth.isUser(req.permissions, req.userId);
         
         let tag = await Tag.create({
             name : req.body.name
@@ -40,9 +40,9 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    SearchTags : async (req, res, next) => {
+    searchTags : async (req, res, next) => {
 
-        let tags = await Tag.SearchByName(req.query.name)
+        let tags = await Tag.searchByName(req.query.name)
     
         res.status(200).json(tags);
     }

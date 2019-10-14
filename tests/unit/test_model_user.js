@@ -1,45 +1,45 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const User        = require('../../models/user');
-const Should      = require('should');
-const UserFixture = require('../fixtures/user');
+const {User}        = require('../../models');
+const should        = require('should');
+const {userFixture} = require('../fixtures');
 
 describe('Model User:', () => {
 
     let fixtures = {
-        test_user_1 : UserFixture.Random(),
-        test_user_2 : UserFixture.Random()
+        testUser1 : userFixture.random(),
+        testUser2 : userFixture.random()
     };
     
     let instance = {};
 
     it('User.create should create new user', async () => {
 
-        let user_1 = await User.create(fixtures.test_user_1);
-        let user_2 = await User.create(fixtures.test_user_2);
-        Should.exist(user_1.id);
-        Should.exist(user_2.id);
-        instance.test_user_1 = user_1;
-        instance.test_user_2 = user_2;
+        let user1 = await User.create(fixtures.testUser1);
+        let user2 = await User.create(fixtures.testUser2);
+        should.exist(user1.id);
+        should.exist(user2.id);
+        instance.testUser1 = user1;
+        instance.testUser2 = user2;
 
     });
 
     it('User.findOne should find user', async () => {
 
         let user = await User.findOne({
-            where : { email: instance.test_user_1.email }
+            where : { email: instance.testUser1.email }
         });
 
-        Should.exist(user);
-        user.email.should.equal(instance.test_user_1.email);
+        should.exist(user);
+        user.email.should.equal(instance.testUser1.email);
 
      });
 
     it('User.findAll should find all users', async () => {
 
         let users = await User.findAll({
-            where : { id: [instance.test_user_1.id, instance.test_user_2.id] }
+            where : { id: [instance.testUser1.id, instance.testUser2.id] }
         });
 
         users.length.should.equal(2);
@@ -48,26 +48,26 @@ describe('Model User:', () => {
 
     it('user.save should save user', async () => {
         
-        let another_user = UserFixture.Random();
+        let anotherUser = userFixture.random();
         
-        instance.test_user_1.name = another_user.name;
-        await instance.test_user_1.save();
+        instance.testUser1.name = anotherUser.name;
+        await instance.testUser1.save();
 
-        let updated_user = await User.findOne({
-             where : { id: instance.test_user_1.id }
+        let updatedUser = await User.findOne({
+             where : { id: instance.testUser1.id }
         });
-        updated_user.name.should.equal(another_user.name);
-        instance.test_user_1 = updated_user;
+        updatedUser.name.should.equal(anotherUser.name);
+        instance.testUser1 = updatedUser;
 
     });
 
     it('user.destroy should delete user', async () => {
 
-        await instance.test_user_1.destroy();
-        await instance.test_user_2.destroy();
+        await instance.testUser1.destroy();
+        await instance.testUser2.destroy();
 
         let users = await User.findAll({
-            where : { id: [instance.test_user_1.id, instance.test_user_2.id] }
+            where : { id: [instance.testUser1.id, instance.testUser2.id] }
         });
 
         users.length.should.equal(0);

@@ -6,7 +6,7 @@
  * @param   {(string|int|string[]|int[])}   value          - value to be converted
  * @returns {(|int|int[])}          
  */
-const to_int = (value) => {
+const toInt = (value) => {
     value = Array.isArray(value) ? value.map(item => parseInt(item)) : parseInt(value);
     return value;
 };
@@ -17,7 +17,7 @@ const to_int = (value) => {
  * @param   {*}        value          - value to be validated
  * @returns {bool}                 
  */
-const int_array = (value) => {
+const intArray = (value) => {
     if (!Array.isArray(value)) {
         throw new Error('value should be array');
     }
@@ -37,7 +37,7 @@ const int_array = (value) => {
  * @param   {*}        value          - value to be validated
  * @returns {bool}                 
  */
-const image_link = (value) => {
+const imageLink = (value) => {
     if (!/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|png|svg))/i.test(value)) {
         throw new Error('not an image link');
     }
@@ -45,11 +45,11 @@ const image_link = (value) => {
 };
 
 module.exports = {
-    CustomValidator : {
-        int_array,
-        image_link
+    customValidator : {
+        intArray,
+        imageLink
     },
-    CustomSanitizer : {
-        to_int
+    customSanitizer : {
+        toInt
     }
 };

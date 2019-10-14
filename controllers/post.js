@@ -1,24 +1,24 @@
-const Auth             = require('../utils/auth');
+const auth             = require('../utils/auth');
 const HttpError        = require('http-errors'); 
-const {BlogPost, Tag}  = require('../models');
+const {Post, Tag}  = require('../models');
 
 module.exports = {
     
     routes : [
         {
-            route : '/user/:user_id/post/:id', method : 'get', function : 'GetPost', 
+            route : '/user/:userId/post/:id', method : 'get', function : 'getPost', 
         },
         {
-            route : '/user/:user_id/post', method : 'post', function : 'CreatePost', 
+            route : '/user/:userId/post', method : 'post', function : 'createPost', 
         },
         {
-            route : '/user/:user_id/post/:id', method : 'put', function : 'UpdatePost', 
+            route : '/user/:userId/post/:id', method : 'put', function : 'updatePost', 
         },
         {
-            route : '/user/:user_id/post/:id', method : 'delete', function : 'DeletePost', 
+            route : '/user/:userId/post/:id', method : 'delete', function : 'deletePost', 
         },
         {
-            route : '/user/:user_id/posts/search', method : 'get', function : 'SearchPosts', 
+            route : '/user/:userId/posts/search', method : 'get', function : 'searchPosts', 
         }
     ],
 
@@ -31,10 +31,10 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    GetPost : async (req, res, next) => {
+    getPost : async (req, res, next) => {
 
-        let post = await BlogPost.findOne({
-            where   : { id: req.params.id, user_id: req.params.user_id },
+        let post = await Post.findOne({
+            where   : { id: req.params.id, userId: req.params.userId },
             include : { model: Tag, as: 'tags' } 
         });
         
@@ -43,7 +43,7 @@ module.exports = {
         }
     
         if (!post.published) {
-            Auth.IsUser(req.permissions, req.params.user_id);
+            auth.isUser(req.permissions, req.params.userId);
         }
 
         res.status(200).json(post);
@@ -58,12 +58,12 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    CreatePost : async (req, res, next) => {
+    createPost : async (req, res, next) => {
 
-        Auth.IsUser(req.permissions, req.params.user_id);
+        auth.isUser(req.permissions, req.params.userId);
         
-        let new_post = await BlogPost.create({
-            user_id   : req.params.user_id,
+        let newPost = await Post.create({
+            userId    : req.params.userId,
             title     : req.body.title,
             image     : req.body.image || null,
             content   : req.body.content || null,
@@ -71,10 +71,10 @@ module.exports = {
         });
         
         if (req.body.tags) {
-            await new_post.syncTags(req.body.tags);
+            await newPost.syncTags(req.body.tags);
         }
     
-        res.status(201).json(new_post);
+        res.status(201).json(newPost);
     },
 
     /**
@@ -85,12 +85,12 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    UpdatePost : async (req, res, next) => {
+    updatePost : async (req, res, next) => {
 
-        Auth.IsUser(req.permissions, req.params.user_id);
+        auth.isUser(req.permissions, req.params.userId);
 
-        let op = await BlogPost.findOne({
-            where : { id: req.params.id, user_id: req.params.user_id }
+        let op = await Post.findOne({
+            where : { id: req.params.id, userId: req.params.userId }
         });
         
         if (!op) {
@@ -121,12 +121,12 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    DeletePost : async (req, res, next) => {
+    deletePost : async (req, res, next) => {
 
-        Auth.IsUser(req.permissions, req.params.user_id);
+        auth.isUser(req.permissions, req.params.userId);
 
-        let post = await BlogPost.findOne({
-            where : { id: req.params.id, user_id: req.params.user_id }
+        let post = await Post.findOne({
+            where : { id: req.params.id, userId: req.params.userId }
         });
         
         if (!post) {
@@ -147,23 +147,22 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    SearchPosts : async (req, res, next) => {
-
-        if (req.query.published != true) {
-            Auth.IsUser(req.permissions, req.params.user_id);            
-        }
+    searchPosts : async (req, res, next) => {
 
         let params = {
             where      : {
-                user_id : req.params.user_id
+                userId : req.params.userId
             },
-            attributes : ['id', 'user_id', 'title']
+            attributes : ['id', 'userId', 'title']
         };
 
-        if (typeof req.query.published === 'boolean') {
-            params.where.published = req.query.published;
+        // reset published to true for visitor
+        try {
+            auth.isUser(req.permissions, req.params.userId)
+        } catch(e) {
+            params.where.published = true;
         }
-
+        
         if (req.query.tags) {
             params.include = {
                 model      : Tag,    
@@ -173,7 +172,7 @@ module.exports = {
             };
         }
     
-        let posts = await BlogPost.findAll(params);
+        let posts = await Post.findAll(params);
 
         res.status(200).json(posts);
     }

@@ -1,62 +1,62 @@
 const { check } = require('express-validator');
-const { CustomValidator, CustomSanitizer} = require('./custom_validator');
-let Validation = {};
+const { customValidator, customSanitizer} = require('./custom_validator');
+let validation = {};
 
-Validation.User = {
-    GetUser : [
+validation.user = {
+    getUser : [
         check('id').isInt().toInt()
     ],
-    Login : [
+    login : [
         check('email').isEmail(),
         check('password').exists().isLength({ max: 128 })
     ],
-    Register : [
+    register : [
         check('email').isEmail(),
         check('password').exists().isLength({ max: 128 }),
         check('name').exists().isLength({ max: 100 })
     ]
 };
 
-Validation.Post = {
-    GetPost : [
+validation.post = {
+    getPost : [
         check('id').isInt().toInt(),
-        check('user_id').isInt().toInt()
+        check('userId').isInt().toInt()
     ],
-    CreatePost : [
-        check('user_id').isInt().toInt(),
+    createPost : [
+        check('userId').isInt().toInt(),
         check('title').isString().isLength({ max: 100 }),
         check('content').optional().isString(),
-        check('tags').optional().custom(CustomValidator.int_array).customSanitizer(CustomSanitizer.to_int),
-        check('image').optional().custom(CustomValidator.image_link),
+        check('tags').optional().custom(customValidator.intArray).customSanitizer(customSanitizer.toInt),
+        check('image').optional().custom(customValidator.imageLink),
         check('published').optional().isBoolean().toBoolean()
     ],
-    UpdatePost : [
+    updatePost : [
         check('id').isInt().toInt(),
-        check('user_id').isInt().toInt(),
+        check('userId').isInt().toInt(),
         check('title').isString().isLength({ max: 100 }),
         check('content').optional().isString(),
-        check('tags').optional().custom(CustomValidator.int_array) .customSanitizer(CustomSanitizer.to_int),
-        check('image').optional().custom(CustomValidator.image_link),
+        check('tags').optional().custom(customValidator.intArray).customSanitizer(customSanitizer.toInt),
+        check('image').optional().custom(customValidator.imageLink),
         check('published').optional().isBoolean().toBoolean()
     ],
-    DeletePost : [
+    deletePost : [
         check('id').isInt().toInt(),
-        check('user_id').isInt().toInt()
+        check('userId').isInt().toInt()
     ],
-    SearchPosts : [
-        check('user_id').isInt().toInt(),
-        check('tags').optional().custom(CustomValidator.int_array).customSanitizer(CustomSanitizer.to_int),
+    searchPosts : [
+        check('userId').isInt().toInt(),
+        check('tags').optional().custom(customValidator.intArray).customSanitizer(customSanitizer.toInt),
         check('published').optional().isBoolean().toBoolean()
     ]
 };
 
-Validation.Tag = {
-    CreateTag : [
+validation.tag = {
+    createTag : [
         check('name').exists().isLength({ max: 100 })
     ],
-    SearchTags : [
+    searchTags : [
         check('name').optional().isLength({ max: 100 })
     ]
 };
 
-module.exports = Validation;
+module.exports = validation;

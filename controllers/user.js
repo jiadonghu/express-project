@@ -1,22 +1,22 @@
 const { User }         = require('../models/');
-const Jwt              = require('jsonwebtoken');
-const Config           = require('../config');
-const Permissions      = require('../utils/permissions');
-const Auth             = require('../utils/auth');
+const jwt              = require('jsonwebtoken');
+const config           = require('../config');
+const permissions      = require('../utils/permissions');
+const auth             = require('../utils/auth');
 const HttpError        = require('http-errors'); 
-const Crypto           = require('crypto');
+const crypto           = require('crypto');
 
 module.exports = {
     
     routes : [
         {
-            route : '/user/:id', method : 'get', function : 'GetUser', 
+            route : '/user/:id', method : 'get', function : 'getUser', 
         },
         {
-            route : '/login', method : 'post', function : 'Login', 
+            route : '/login', method : 'post', function : 'login', 
         },
         {
-            route : '/register', method : 'post', function : 'Register', 
+            route : '/register', method : 'post', function : 'register', 
         },
     ],
 
@@ -29,11 +29,9 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    GetUser : async (req, res, next) => {
-
-        console.log('getuser')
+    getUser : async (req, res, next) => {
       
-        Auth.IsUser(req.permissions, req.params.id);
+        auth.isUser(req.permissions, req.params.id);
 
         let user = await User.findOne({
             where : { id: req.params.id }
@@ -59,7 +57,7 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    Login : async (req, res, next) => {
+    login : async (req, res, next) => {
 
         let user = await User.findOne({
             where : { email: req.body.email }
@@ -69,20 +67,20 @@ module.exports = {
             throw new HttpError(404, 'user not found');
         }
 
-        if (user.password !== Crypto.createHash('sha256').update(req.body.password).digest('base64')) {
+        if (user.password !== crypto.createHash('sha256').update(req.body.password).digest('base64')) {
             throw new HttpError(401, 'incorrect password');
         }
     
-        let token = Jwt.sign(
+        let token = jwt.sign(
             { 
-                user_id     : user.id, 
+                userId      : user.id, 
                 permissions : [
-                    Permissions.VISITOR,
-                    Permissions.VALID_USER(user.id)
+                    permissions.VISITOR,
+                    permissions.VALID_USER(user.id)
                 ] 
             },
-            Config.jwt.secret,
-            { expiresIn: Config.jwt.expire }
+            config.jwt.secret,
+            { expiresIn: config.jwt.expire }
         );
 
         res.status(200).json({ token: token });
@@ -96,32 +94,32 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}         
      */
-    Register : async (req, res, next) => {
+    register : async (req, res, next) => {
 
-        let existing_user = await User.findOne({
+        let existingUser = await User.findOne({
             where : { email: req.body.email }
         });
 
-        if (existing_user) {
+        if (existingUser) {
             throw HttpError(409, 'email already exist');
         }
 
-        let new_user = await User.create({
+        let newUser = await User.create({
             email    : req.body.email,
             name     : req.body.name,
-            password : Crypto.createHash('sha256').update(req.body.password).digest('base64')
+            password : crypto.createHash('sha256').update(req.body.password).digest('base64')
         });
 
-        let token = Jwt.sign(
+        let token = jwt.sign(
             { 
-                user_id     : new_user.id, 
+                userId     : newUser.id, 
                 permissions : [
-                    Permissions.VISITOR,
-                    Permissions.VALID_USER(new_user.id)
+                    permissions.VISITOR,
+                    permissions.VALID_USER(newUser.id)
                 ] 
             },
-            Config.jwt.secret,
-            { expiresIn: Config.jwt.expire }
+            config.jwt.secret,
+            { expiresIn: config.jwt.expire }
         );
         
         res.status(201).json({ token: token });

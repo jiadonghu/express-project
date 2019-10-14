@@ -1,161 +1,161 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const {BlogPost, Tag, PostTag, User} = require('../../models');
-const {UserFixture, PostFixture, TagFixture} = require('../fixtures');
-const Should = require('should');
+const {Post, Tag, PostTag, User} = require('../../models');
+const {userFixture, postFixture, tagFixture} = require('../fixtures');
+const should = require('should');
 
-describe('Model Blog Post:', () => {
+describe('Model Post:', () => {
 
     let fixtures = {
-        test_user   : UserFixture.Random(),
-        tag_1       : TagFixture.Random(),
-        tag_2       : TagFixture.Random()
+        testUser   : userFixture.random(),
+        tag1       : tagFixture.random(),
+        tag2       : tagFixture.random()
     };
 
     let instances = {};
 
     before(async () => {
-        let user = await User.create(fixtures.test_user);
-        let tag_1 = await Tag.create(fixtures.tag_1);
-        let tag_2 = await Tag.create(fixtures.tag_2);
-        fixtures.test_post_1 = PostFixture.Random(user.id);
-        fixtures.test_post_2 = PostFixture.Random(user.id);
+        let user = await User.create(fixtures.testUser);
+        let tag1 = await Tag.create(fixtures.tag1);
+        let tag2 = await Tag.create(fixtures.tag2);
+        fixtures.testPost1 = postFixture.random(user.id);
+        fixtures.testPost2 = postFixture.random(user.id);
         instances.user = user;
-        instances.tag_1 = tag_1;
-        instances.tag_2 = tag_2;
+        instances.tag1 = tag1;
+        instances.tag2 = tag2;
     });
 
-    it('BlogPost.create should create new blog post', async () => {
+    it('Post.create should create new post', async () => {
 
-        let test_post_1 = await BlogPost.create(fixtures.test_post_1);
-        let test_post_2 = await BlogPost.create(fixtures.test_post_2);
-        Should.exist(test_post_1.id);
-        Should.exist(test_post_2.id);
-        instances.test_post_1 = test_post_1;
-        instances.test_post_2 = test_post_2;
+        let testPost1 = await Post.create(fixtures.testPost1);
+        let testPost2 = await Post.create(fixtures.testPost2);
+        should.exist(testPost1.id);
+        should.exist(testPost2.id);
+        instances.testPost1 = testPost1;
+        instances.testPost2 = testPost2;
 
     });
 
-    it('BlogPost.findOne should find one post', async () => {
+    it('Post.findOne should find one post', async () => {
 
-        let test_post_1 = await BlogPost.findOne({
-            where : { id: instances.test_post_1.id }
+        let testPost1 = await Post.findOne({
+            where : { id: instances.testPost1.id }
         });
-        let test_post_2 = await BlogPost.findOne({
-            where : { id: instances.test_post_2.id }
+        let testPost2 = await Post.findOne({
+            where : { id: instances.testPost2.id }
         });
-        test_post_1.id.should.eql(instances.test_post_1.id);
-        test_post_1.content.should.eql(instances.test_post_1.content);
+        testPost1.id.should.eql(instances.testPost1.id);
+        testPost1.content.should.eql(instances.testPost1.content);
         
-        test_post_2.id.should.eql(instances.test_post_2.id);
-        test_post_2.content.should.eql(instances.test_post_2.content);
+        testPost2.id.should.eql(instances.testPost2.id);
+        testPost2.content.should.eql(instances.testPost2.content);
         
     });
 
-    it('BlogPost.findAll should find all by user', async () => {
+    it('Post.findAll should find all by user', async () => {
 
-        let posts = await BlogPost.findAll({
-            where : { user_id: instances.user.id }
+        let posts = await Post.findAll({
+            where : { userId: instances.user.id }
         });
 
         posts.map(post => post.id).should.eql([
-            instances.test_post_1.id,
-            instances.test_post_2.id
+            instances.testPost1.id,
+            instances.testPost2.id
         ]);
 
         posts.length.should.equal(2);
 
     });
 
-    it('blogpost.save should save', async () => {
+    it('post.save should save', async () => {
         
-        let another_post = PostFixture.Random(instances.user.id);
+        let anotherPost = postFixture.random(instances.user.id);
         
-        instances.test_post_1.content = another_post.content;
-        await instances.test_post_1.save();
+        instances.testPost1.content = anotherPost.content;
+        await instances.testPost1.save();
 
-        let updated_post = await BlogPost.findOne({
-             where : { id: instances.test_post_1.id }
+        let updatedPost = await Post.findOne({
+             where : { id: instances.testPost1.id }
         });
-        instances.test_post_1.content.should.equal(updated_post.content);
+        instances.testPost1.content.should.equal(updatedPost.content);
 
     });
 
-    it('blogpost.syncTag should sync tag for blog post', async () => {
+    it('post.syncTag should sync tag for post', async () => {
 
-        await instances.test_post_1.syncTags([instances.tag_1.id, instances.tag_2.id]);
+        await instances.testPost1.syncTags([instances.tag1.id, instances.tag2.id]);
 
-        let post_tags = await PostTag.findAll({
-            where : { post_id: instances.test_post_1.id }
+        let postTags = await PostTag.findAll({
+            where : { postId: instances.testPost1.id }
         });
 
-        post_tags.map(post_tag => post_tag.tag_id).should.eql(
-            [instances.tag_1.id, instances.tag_2.id]
+        postTags.map(postTag => postTag.tagId).should.eql(
+            [instances.tag1.id, instances.tag2.id]
         );
 
-        await instances.test_post_1.syncTags([instances.tag_1.id]);
+        await instances.testPost1.syncTags([instances.tag1.id]);
 
-        post_tags = await PostTag.findAll({
-            where : { post_id: instances.test_post_1.id }
+        postTags = await PostTag.findAll({
+            where : { postId: instances.testPost1.id }
         });
 
-        post_tags.map(post_tag => post_tag.tag_id).should.eql(
-            [instances.tag_1.id]
+        postTags.map(postTag => postTag.tagId).should.eql(
+            [instances.tag1.id]
         );
 
     });
 
-    it('BlogPost.findOne and BlogPost.findAll should include tags for blog posts', async () => {
+    it('Post.findOne and Post.findAll should include tags for posts', async () => {
 
-        let post = await BlogPost.findOne({
-             where   : { id: instances.test_post_1.id },
+        let post = await Post.findOne({
+             where   : { id: instances.testPost1.id },
              include : { model: Tag, as: 'tags' } 
         });
         post.tags.map(tag => tag.id).should.eql(
-            [instances.tag_1.id]
+            [instances.tag1.id]
         );
 
-        let posts = await BlogPost.findAll({
-            where : { user_id: instances.user.id },
+        let posts = await Post.findAll({
+            where   : { userId: instances.user.id },
             include : { model: Tag, as: 'tags' } 
         });
 
-        let post_map = {};
+        let postMap = {};
         posts.map(item => {
-            post_map[item.id] = item.tags.map(tag => tag.id);
+            postMap[item.id] = item.tags.map(tag => tag.id);
         });
-        post_map[instances.test_post_1.id].should.eql(
-            [instances.tag_1.id]
+        postMap[instances.testPost1.id].should.eql(
+            [instances.tag1.id]
         );
-        post_map[instances.test_post_2.id].should.eql(
+        postMap[instances.testPost2.id].should.eql(
             []
         );
 
     });
 
-    it('blogpost.destroy should delete blogpost and posttags', async () => {
+    it('post.destroy should delete post and posttags', async () => {
 
-        await instances.test_post_1.destroy();
-        await instances.test_post_2.destroy();
+        await instances.testPost1.destroy();
+        await instances.testPost2.destroy();
 
-        let posts = await BlogPost.findAll({
-            where : { user_id: instances.user.id }
+        let posts = await Post.findAll({
+            where : { userId: instances.user.id }
         });
 
-        let post_tags = await PostTag.findAll({
-            where : { post_id: [instances.test_post_1.id, instances.test_post_2.id] }
+        let postTags = await PostTag.findAll({
+            where : { postId: [instances.testPost1.id, instances.testPost2.id] }
         });
         
-        post_tags.length.should.equal(0);
-        post_tags.length.should.equal(0);
+        postTags.length.should.equal(0);
+        postTags.length.should.equal(0);
 
     });
 
     after(async () => {
         await instances.user.destroy();
-        await instances.tag_1.destroy();
-        await instances.tag_2.destroy();
+        await instances.tag1.destroy();
+        await instances.tag2.destroy();
     })
 
 });

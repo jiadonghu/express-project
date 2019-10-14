@@ -1,22 +1,21 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const Request                   = require('request-promise');
-const Should                    = require('should');
-const Promise                   = require('bluebird');
-const Jwt                       = require('jsonwebtoken');
-const Chance                    = require('chance'); 
-const Permissions               = require('../../utils/permissions');
-const Config                    = require('../../config');
+const request                   = require('request-promise');
+const should                    = require('should');
+const promise                   = require('bluebird');
+const jwt                       = require('jsonwebtoken');
+const permissions               = require('../../utils/permissions');
+const config                    = require('../../config');
 const {Tag, User}               = require('../../models');
-const {UserFixture, TagFixture} = require('../fixtures');
+const {userFixture, tagFixture} = require('../fixtures');
 
 describe('Controller Tag', () => {
     
         let fixtures = {
-            user  : UserFixture.Random(),
-            tag_1 : TagFixture.Random(),
-            tag_2 : TagFixture.Random()
+            user : userFixture.random(),
+            tag1 : tagFixture.random(),
+            tag2 : tagFixture.random()
         };
     
         let instances = {};
@@ -26,36 +25,36 @@ describe('Controller Tag', () => {
             let app = require('../../app');
 
             instances.user = await User.create(fixtures.user);
-            instances.tag_1 = await Tag.create(fixtures.tag_1);
-            fixtures.user_token = Jwt.sign(
+            instances.tag1 = await Tag.create(fixtures.tag1);
+            fixtures.userToken = jwt.sign(
                 { 
-                    user_id     : instances.user.id, 
+                    userId     : instances.user.id, 
                     permissions : [
-                        Permissions.VISITOR,
-                        Permissions.VALID_USER(instances.user.id)
+                        permissions.VISITOR,
+                        permissions.VALID_USER(instances.user.id)
                     ] 
                 },
-                Config.jwt.secret,
+                config.jwt.secret,
                 { expiresIn: 60 }
             );
-            fixtures.visitor_token = Jwt.sign(
+            fixtures.visitorToken = jwt.sign(
                 { 
                     permissions : [
-                        Permissions.VISITOR
+                        permissions.VISITOR
                     ] 
                 },
-                Config.jwt.secret,
+                config.jwt.secret,
                 { expiresIn: 60 }
             );
-            await Promise.delay(1000);
+            await promise.delay(1000);
         });
 
         it('Post: /tag should return 400 when params are invalid', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'POST',
-                uri                     : Config.api.url + 'tag',
-                headers                 : { 'authorization': fixtures.user_token },
+                uri                     : config.api.url + 'tag',
+                headers                 : { 'authorization': fixtures.userToken },
                 body                    : {},
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -68,11 +67,11 @@ describe('Controller Tag', () => {
 
         it('Post: /tag should return 401 when permission are correct', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'POST',
-                uri                     : Config.api.url + 'tag',
-                headers                 : { 'authorization': fixtures.visitor_token },
-                body                    : { name : fixtures.tag_1 },
+                uri                     : config.api.url + 'tag',
+                headers                 : { 'authorization': fixtures.visitorToken },
+                body                    : { name: fixtures.tag1 },
                 json                    : true,
                 resolveWithFullResponse : true,
                 simple                  : false
@@ -84,11 +83,11 @@ describe('Controller Tag', () => {
 
         it('Post: /tag should create tag', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'POST',
-                uri                     : Config.api.url + 'tag',
-                headers                 : { 'authorization': fixtures.user_token },
-                body                    : { name: fixtures.tag_2.name },
+                uri                     : config.api.url + 'tag',
+                headers                 : { 'authorization': fixtures.userToken },
+                body                    : { name: fixtures.tag2.name },
                 json                    : true,
                 resolveWithFullResponse : true,
                 simple                  : false
@@ -96,17 +95,17 @@ describe('Controller Tag', () => {
     
             result.statusCode.should.equal(201);
         
-            Should.exist(result.body.id);
+            should.exist(result.body.id);
             let tag = await Tag.findOne({ where: { id: result.body.id } });
-            tag.name.should.equal(fixtures.tag_2.name);
-            instances.tag_2 = tag;
+            tag.name.should.equal(fixtures.tag2.name);
+            instances.tag2 = tag;
         });
 
         it('Get: /tags/search should return 400 when query is too long', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'GET',
-                uri                     : Config.api.url + 'tags/search?name=' + 'i'.repeat(101),
+                uri                     : config.api.url + 'tags/search?name=' + 'i'.repeat(101),
                 headers                 : {},
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -119,9 +118,9 @@ describe('Controller Tag', () => {
 
         it('Get: /tags/search should search tags by name', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'GET',
-                uri                     : Config.api.url + 'tags/search?name=' + instances.tag_1.name,
+                uri                     : config.api.url + 'tags/search?name=' + instances.tag1.name,
                 headers                 : {},
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -130,14 +129,14 @@ describe('Controller Tag', () => {
     
             result.statusCode.should.equal(200);
             result.body.length.should.equal(1);
-            result.body[0].name.should.equal(instances.tag_1.name);
+            result.body[0].name.should.equal(instances.tag1.name);
         });
 
         it('Get: /tags/search should list all tags when no query provided', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'GET',
-                uri                     : Config.api.url + 'tags/search',
+                uri                     : config.api.url + 'tags/search',
                 headers                 : {},
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -146,15 +145,15 @@ describe('Controller Tag', () => {
     
             result.statusCode.should.equal(200);
             let names = result.body.map(item => item.name);
-            names.indexOf(instances.tag_1.name).should.aboveOrEqual(0);
-            names.indexOf(instances.tag_2.name).should.aboveOrEqual(0);
+            names.indexOf(instances.tag1.name).should.aboveOrEqual(0);
+            names.indexOf(instances.tag2.name).should.aboveOrEqual(0);
         });
 
         after(async () => {
 
             await instances.user.destroy();
-            await instances.tag_1.destroy();
-            await instances.tag_2.destroy();
+            await instances.tag1.destroy();
+            await instances.tag2.destroy();
             
         });
 })

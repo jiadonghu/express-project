@@ -1,24 +1,24 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const {BlogPost, Tag, PostTag, User}         = require('../../models');
-const {UserFixture, PostFixture, TagFixture} = require('../fixtures');
-const Should                                 = require('should');
-const Request                                = require('request-promise');
-const Promise                                = require('bluebird');
-const Jwt                                    = require('jsonwebtoken');
-const Permissions                            = require('../../utils/permissions');
-const Config                                 = require('../../config');
+const {Post, Tag, PostTag, User}             = require('../../models');
+const {userFixture, postFixture, tagFixture} = require('../fixtures');
+const should                                 = require('should');
+const request                                = require('request-promise');
+const promise                                = require('bluebird');
+const jwt                                    = require('jsonwebtoken');
+const permissions                            = require('../../utils/permissions');
+const config                                 = require('../../config');
 
 
 describe('Controller Post', () => {
 
     let fixtures = {
-        user   : UserFixture.Random(),
-        tag_1  : TagFixture.Random(),
-        tag_2  : TagFixture.Random(),
-        post_1 : PostFixture.Random(),
-        post_2 : PostFixture.Random()
+        user  : userFixture.random(),
+        tag1  : tagFixture.random(),
+        tag2  : tagFixture.random(),
+        post1 : postFixture.random(),
+        post2 : postFixture.random()
     };
     let instances = {};
 
@@ -27,39 +27,39 @@ describe('Controller Post', () => {
         let app = require('../../app');
 
         instances.user = await User.create(fixtures.user);
-        instances.tag_1 = await Tag.create(fixtures.tag_1);
-        instances.tag_2 = await Tag.create(fixtures.tag_2);
+        instances.tag1 = await Tag.create(fixtures.tag1);
+        instances.tag2 = await Tag.create(fixtures.tag2);
 
-        fixtures.user_token = Jwt.sign(
+        fixtures.userToken = jwt.sign(
             { 
-                user_id     : instances.user.id, 
+                userId     : instances.user.id, 
                 permissions : [
-                    Permissions.VISITOR,
-                    Permissions.VALID_USER(instances.user.id)
+                    permissions.VISITOR,
+                    permissions.VALID_USER(instances.user.id)
                 ] 
             },
-            Config.jwt.secret,
+            config.jwt.secret,
             { expiresIn: 60 }
         );
-        fixtures.visitor_token = Jwt.sign(
+        fixtures.visitorToken = jwt.sign(
             { 
                 permissions : [
-                    Permissions.VISITOR
+                    permissions.VISITOR
                 ] 
             },
-            Config.jwt.secret,
+            config.jwt.secret,
             { expiresIn: 60 }
         );
-        await Promise.delay(1000);
+        await promise.delay(1000);
     });
 
     // CREATE
-    it('POST: user/:user_id/post should return 400 when params are invalid', async () => {
+    it('POST: user/:userId/post should return 400 when params are invalid', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'POST',
-                uri                     : Config.api.url + `user/${instances.user.id}/post`,
-                headers                 : { 'authorization': fixtures.user_token },
+                uri                     : config.api.url + `user/${instances.user.id}/post`,
+                headers                 : { 'authorization': fixtures.userToken },
                 body                    : {},
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -70,14 +70,14 @@ describe('Controller Post', () => {
 
     });
 
-    it('POST: user/:user_id/post should return 401 when user permission is incorrect', async () => {
+    it('POST: user/:userId/post should return 401 when user permission is incorrect', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'POST',
-                uri                     : Config.api.url + `user/${instances.user.id + 1}/post`,
-                headers                 : { 'authorization': fixtures.user_token },
+                uri                     : config.api.url + `user/${instances.user.id + 1}/post`,
+                headers                 : { 'authorization': fixtures.userToken },
                 body                    : {
-                    title : fixtures.post_1.title 
+                    title : fixtures.post1.title 
                 },
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -88,14 +88,14 @@ describe('Controller Post', () => {
 
     });
 
-    it('POST: user/:user_id/post should create post with minimum params', async () => {
+    it('POST: user/:userId/post should create post with minimum params', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'POST',
-                uri                     : Config.api.url + `user/${instances.user.id}/post`,
-                headers                 : { 'authorization': fixtures.user_token },
+                uri                     : config.api.url + `user/${instances.user.id}/post`,
+                headers                 : { 'authorization': fixtures.userToken },
                 body                    : {
-                    title : fixtures.post_1.title 
+                    title : fixtures.post1.title 
                 },
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -104,33 +104,33 @@ describe('Controller Post', () => {
     
             result.statusCode.should.equal(201);
 
-            let post = await BlogPost.findOne({ 
+            let post = await Post.findOne({ 
                 where   : { id: result.body.id },
                 include : { model: Tag, as: 'tags' } 
             });
 
-            instances.post_1 = post;
-            post.title.should.equal(fixtures.post_1.title);
-            post.user_id.should.equal(instances.user.id);
+            instances.post1 = post;
+            post.title.should.equal(fixtures.post1.title);
+            post.userId.should.equal(instances.user.id);
             post.published.should.equal(false);
             post.tags.length.should.equal(0);
-            Should.not.exist(post.image);
-            Should.not.exist(post.content);
+            should.not.exist(post.image);
+            should.not.exist(post.content);
 
     });
 
-    it('POST: user/:user_id/post should create post with all params', async () => {
+    it('POST: user/:userId/post should create post with all params', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'POST',
-                uri                     : Config.api.url + `user/${instances.user.id}/post`,
-                headers                 : { 'authorization': fixtures.user_token },
+                uri                     : config.api.url + `user/${instances.user.id}/post`,
+                headers                 : { 'authorization': fixtures.userToken },
                 body                    : {
-                    title      : fixtures.post_2.title,
-                    image      : fixtures.post_2.image,
-                    content    : fixtures.post_2.content,
-                    published  : fixtures.post_2.published,
-                    tags       : [instances.tag_1.id, instances.tag_2.id]
+                    title      : fixtures.post2.title,
+                    image      : fixtures.post2.image,
+                    content    : fixtures.post2.content,
+                    published  : fixtures.post2.published,
+                    tags       : [instances.tag1.id, instances.tag2.id]
                 },
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -139,28 +139,28 @@ describe('Controller Post', () => {
     
             result.statusCode.should.equal(201);
             
-            let post = await BlogPost.findOne({ 
+            let post = await Post.findOne({ 
                 where   : { id: result.body.id },
                 include : { model: Tag, as: 'tags' } 
             });
 
-            instances.post_2 = post;
-            post.title.should.equal(fixtures.post_2.title);
-            post.user_id.should.equal(instances.user.id);
-            post.published.should.equal(fixtures.post_2.published);
-            post.image.should.equal(fixtures.post_2.image);
-            post.content.should.equal(fixtures.post_2.content);
-            post.tags.map(tag => tag.id).should.eql([instances.tag_1.id, instances.tag_2.id]);
+            instances.post2 = post;
+            post.title.should.equal(fixtures.post2.title);
+            post.userId.should.equal(instances.user.id);
+            post.published.should.equal(fixtures.post2.published);
+            post.image.should.equal(fixtures.post2.image);
+            post.content.should.equal(fixtures.post2.content);
+            post.tags.map(tag => tag.id).should.eql([instances.tag1.id, instances.tag2.id]);
         
     });
 
     // UPDATE 
-    it('PUT: user/:user_id/post should return 400 when params are invalid', async () => {
+    it('PUT: user/:userId/post should return 400 when params are invalid', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'PUT',
-                uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
-                headers                 : { 'authorization': fixtures.user_token },
+                uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
+                headers                 : { 'authorization': fixtures.userToken },
                 body                    : {
                     title : { title: 'test' }
                 },
@@ -173,14 +173,14 @@ describe('Controller Post', () => {
 
     });
 
-    it('PUT: user/:user_id/post should return 401 user permission is incorrect', async () => {
+    it('PUT: user/:userId/post should return 401 user permission is incorrect', async () => {
 
-            let result = await Request({
+            let result = await request({
                 method                  : 'PUT',
-                uri                     : Config.api.url + `user/${instances.user.id + 1}/post/${instances.post_1.id}`,
-                headers                 : { 'authorization': fixtures.user_token },
+                uri                     : config.api.url + `user/${instances.user.id + 1}/post/${instances.post1.id}`,
+                headers                 : { 'authorization': fixtures.userToken },
                 body                    : {
-                    title : fixtures.post_1.title
+                    title : fixtures.post1.title
                 },
                 json                    : true,
                 resolveWithFullResponse : true,
@@ -191,15 +191,15 @@ describe('Controller Post', () => {
 
     });
 
-    it('PUT: user/:user_id/post should update post with minimum params', async () => {
+    it('PUT: user/:userId/post should update post with minimum params', async () => {
 
-        fixtures.post_2.title = PostFixture.Random().title;
-        let result = await Request({
+        fixtures.post2.title = postFixture.random().title;
+        let result = await request({
             method                  : 'PUT',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_2.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post2.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             body                    : {
-                title : fixtures.post_2.title 
+                title : fixtures.post2.title 
             },
             json                    : true,
             resolveWithFullResponse : true,
@@ -207,37 +207,37 @@ describe('Controller Post', () => {
         });
 
         result.statusCode.should.equal(202);
-        let post = await BlogPost.findOne({ 
+        let post = await Post.findOne({ 
             where   : { id: result.body.id },
             include : { model: Tag, as: 'tags' } 
         });
 
-        instances.post_2 = post;
-        post.title.should.equal(fixtures.post_2.title);
-        post.user_id.should.equal(instances.user.id);
+        instances.post2 = post;
+        post.title.should.equal(fixtures.post2.title);
+        post.userId.should.equal(instances.user.id);
         post.published.should.equal(false);
         post.tags.length.should.equal(0);
-        Should.not.exist(post.image);
-        Should.not.exist(post.content);
+        should.not.exist(post.image);
+        should.not.exist(post.content);
 
     });
 
-    it('PUT: user/:user_id/post should update post with all params', async () => {
+    it('PUT: user/:userId/post should update post with all params', async () => {
 
-        fixtures.post_1 = PostFixture.Random();
-        let result = await Request({
+        fixtures.post1 = postFixture.random();
+        let result = await request({
             method                  : 'PUT',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
             headers                 : { 
                 'Content-Type' : 'application/json',
-                'authorization': fixtures.user_token
+                'authorization': fixtures.userToken
              },
             body                    : {
-                title      : fixtures.post_1.title,
-                image      : fixtures.post_1.image,
-                content    : fixtures.post_1.content,
-                published  : fixtures.post_1.published,
-                tags       : [instances.tag_1.id]
+                title      : fixtures.post1.title,
+                image      : fixtures.post1.image,
+                content    : fixtures.post1.content,
+                published  : fixtures.post1.published,
+                tags       : [instances.tag1.id]
             },
             json                    : true,
             resolveWithFullResponse : true,
@@ -245,28 +245,28 @@ describe('Controller Post', () => {
         });
 
         result.statusCode.should.equal(202);
-        let post = await BlogPost.findOne({ 
+        let post = await Post.findOne({ 
             where   : { id: result.body.id },
             include : { model: Tag, as: 'tags' } 
         });
 
-        instances.post_1 = post;
-        post.title.should.equal(fixtures.post_1.title);
-        post.user_id.should.equal(instances.user.id);
-        post.published.should.equal(fixtures.post_1.published);
-        post.image.should.equal(fixtures.post_1.image);
-        post.content.should.equal(fixtures.post_1.content);
-        post.tags.map(tag => tag.id).should.eql([instances.tag_1.id]);
+        instances.post1 = post;
+        post.title.should.equal(fixtures.post1.title);
+        post.userId.should.equal(instances.user.id);
+        post.published.should.equal(fixtures.post1.published);
+        post.image.should.equal(fixtures.post1.image);
+        post.content.should.equal(fixtures.post1.content);
+        post.tags.map(tag => tag.id).should.eql([instances.tag1.id]);
 
     });
 
     // GET
-    it('GET: user/:user_id/post/:id should return 400 when params are invalid', async () => {
+    it('GET: user/:userId/post/:id should return 400 when params are invalid', async () => {
 
-        let result = await Request({
+        let result = await request({
             method                  : 'GET',
-            uri                     : Config.api.url + `user/xx/post/${instances.post_1.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/xx/post/${instances.post1.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -276,14 +276,14 @@ describe('Controller Post', () => {
 
     });
 
-    it('GET: user/:user_id/post/:id should return 401 for visitor when post is not published', async () => {
+    it('GET: user/:userId/post/:id should return 401 for visitor when post is not published', async () => {
 
-        instances.post_1.published = false;
-        await instances.post_1.save();
+        instances.post1.published = false;
+        await instances.post1.save();
 
-        let result = await Request({
+        let result = await request({
             method                  : 'GET',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -293,49 +293,49 @@ describe('Controller Post', () => {
 
     });
 
-    it('GET: user/:user_id/post/:id should return unpublished post for its owner', async () => {
+    it('GET: user/:userId/post/:id should return unpublished post for its owner', async () => {
 
-        let result = await Request({
+        let result = await request({
             method                  : 'GET',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
         });
 
         result.statusCode.should.equal(200);
-        result.body.id.should.equal(instances.post_1.id);
-        result.body.title.should.equal(instances.post_1.title);
+        result.body.id.should.equal(instances.post1.id);
+        result.body.title.should.equal(instances.post1.title);
 
     });
 
-    it('GET: user/:user_id/post/:id should return published post for everyone', async () => {
+    it('GET: user/:userId/post/:id should return published post for everyone', async () => {
 
-        instances.post_1.published = true;
-        await instances.post_1.save();
+        instances.post1.published = true;
+        await instances.post1.save();
 
-        let result = await Request({
+        let result = await request({
             method                  : 'GET',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
         });
 
         result.statusCode.should.equal(200);
-        result.body.id.should.equal(instances.post_1.id);
-        result.body.title.should.equal(instances.post_1.title);
+        result.body.id.should.equal(instances.post1.id);
+        result.body.title.should.equal(instances.post1.title);
 
     });
 
     // SEARCH
-    it('GET: user/:user_id/post/search should return 400 when params are invalid', async () => {
+    it('GET: user/:userId/post/search should return 400 when params are invalid', async () => {
 
-        let result = await Request({
+        let result = await request({
             method                  : 'GET',
-            uri                     : Config.api.url + `user/xx/posts/search`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/xx/posts/search`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -345,31 +345,16 @@ describe('Controller Post', () => {
 
     });
 
-    it('GET: user/:user_id/post/search should return 401 for visitor when search for all posts', async () => {
+    it('GET: user/:userId/post/search should return published posts for visitor when search', async () => {
 
-        let result = await Request({
+        instances.post1.published = false;
+        instances.post2.published = true;
+        await instances.post1.save();
+        await instances.post2.save();
+
+        let result = await request({
             method                  : 'GET',
-            uri                     : Config.api.url + `user/${instances.user.id}/posts/search`,
-            json                    : true,
-            resolveWithFullResponse : true,
-            simple                  : false
-        });
-
-        result.statusCode.should.equal(401);
-
-    });
-
-    it('GET: user/:user_id/post/search should return posts for visitor when search for published posts only', async () => {
-
-        instances.post_1.published = false;
-        instances.post_2.published = true;
-        await instances.post_1.save();
-        await instances.post_2.save();
-
-        let result = await Request({
-            method : 'GET',
-            uri    : Config.api.url + `user/${instances.user.id}/posts/search` + 
-            `?published=true`,
+            uri                     : config.api.url + `user/${instances.user.id}/posts/search`,
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -378,18 +363,18 @@ describe('Controller Post', () => {
         result.statusCode.should.equal(200);
         result.body.length.should.aboveOrEqual(1);
 
-        let post_ids = result.body.map(post => post.id);
-        post_ids.indexOf(instances.post_1.id).should.equal(-1);
-        post_ids.indexOf(instances.post_2.id).should.aboveOrEqual(0);
+        let postIds = result.body.map(post => post.id);
+        postIds.indexOf(instances.post1.id).should.equal(-1);
+        postIds.indexOf(instances.post2.id).should.aboveOrEqual(0);
 
     });
 
-    it('GET: user/:user_id/post/search should return both published or non published posts for user', async () => {
+    it('GET: user/:userId/post/search should return both published or non published posts for user', async () => {
 
-        let result = await Request({
+        let result = await request({
             method                  : 'GET',
-            uri                     : Config.api.url + `user/${instances.user.id}/posts/search`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/${instances.user.id}/posts/search`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -398,54 +383,54 @@ describe('Controller Post', () => {
         result.statusCode.should.equal(200);
         result.body.length.should.equal(2);
 
-        let post_ids = result.body.map(post => post.id);
-        post_ids.should.eql([instances.post_1.id, instances.post_2.id]);
+        let postIds = result.body.map(post => post.id);
+        postIds.should.eql([instances.post1.id, instances.post2.id]);
 
     });
 
-    it('GET: user/:user_id/post/search should return posts by tags', async () => {
+    it('GET: user/:userId/post/search should return posts by tags', async () => {
 
-        await instances.post_1.syncTags([instances.tag_1.id, instances.tag_2.id]);
-        await instances.post_2.syncTags([instances.tag_2.id]);
+        await instances.post1.syncTags([instances.tag1.id, instances.tag2.id]);
+        await instances.post2.syncTags([instances.tag2.id]);
         
-        let result_tag_1 = await Request({
+        let resultTag1 = await request({
             method : 'GET',
-            uri    : Config.api.url + `user/${instances.user.id}/posts/search` + 
-            `?tags[0]=${instances.tag_1.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri    : config.api.url + `user/${instances.user.id}/posts/search` + 
+            `?tags[0]=${instances.tag1.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
         });
 
-        result_tag_1.statusCode.should.equal(200);
-        result_tag_1.body.length.should.equal(1);
-        result_tag_1.body[0].id.should.equal(instances.post_1.id);
+        resultTag1.statusCode.should.equal(200);
+        resultTag1.body.length.should.equal(1);
+        resultTag1.body[0].id.should.equal(instances.post1.id);
 
-        let result_both_tags = await Request({
+        let resultBothTags = await request({
             method : 'GET',
-            uri    : Config.api.url + `user/${instances.user.id}/posts/search` + 
-            `?tags[0]=${instances.tag_1.id}&tags[1]=${instances.tag_2.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri    : config.api.url + `user/${instances.user.id}/posts/search` + 
+            `?tags[0]=${instances.tag1.id}&tags[1]=${instances.tag2.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
         });
 
-        result_both_tags.statusCode.should.equal(200);
-        result_both_tags.body.length.should.equal(2);
-        let post_ids = result_both_tags.body.map(post => post.id);
-        post_ids.should.eql([instances.post_1.id, instances.post_2.id]);
+        resultBothTags.statusCode.should.equal(200);
+        resultBothTags.body.length.should.equal(2);
+        let postIds = resultBothTags.body.map(post => post.id);
+        postIds.should.eql([instances.post1.id, instances.post2.id]);
 
     });
 
     // DELETE
-    it('DELETE: user/:user_id/post/:id should return 400 when params are invalid', async () => {
+    it('DELETE: user/:userId/post/:id should return 400 when params are invalid', async () => {
 
-        let result = await Request({
+        let result = await request({
             method                  : 'DELETE',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/XX`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/${instances.user.id}/post/XX`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -455,11 +440,11 @@ describe('Controller Post', () => {
 
     });
 
-    it('DELETE: user/:user_id/post/:id should return 401 when params are invalid', async () => {
+    it('DELETE: user/:userId/post/:id should return 401 when params are invalid', async () => {
 
-        let result = await Request({
+        let result = await request({
             method                  : 'DELETE',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -469,12 +454,12 @@ describe('Controller Post', () => {
 
     });
 
-    it('DELETE: user/:user_id/post/:id should delete post', async () => {
+    it('DELETE: user/:userId/post/:id should delete post', async () => {
 
-        let result = await Request({
+        let result = await request({
             method                  : 'DELETE',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -485,12 +470,12 @@ describe('Controller Post', () => {
     });
 
     // AFTER DELETION
-    it('DELETE: user/:user_id/post/:id should return 404 when post not found', async () => {
+    it('DELETE: user/:userId/post/:id should return 404 when post not found', async () => {
         
-        let result = await Request({
+        let result = await request({
             method                  : 'DELETE',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -500,14 +485,14 @@ describe('Controller Post', () => {
 
     });
 
-    it('PUT: user/:user_id/post should return 404 post not found', async () => {
+    it('PUT: user/:userId/post should return 404 post not found', async () => {
 
-        let result = await Request({
+        let result = await request({
             method                  : 'PUT',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             body                    : {
-                title : fixtures.post_1.title
+                title : fixtures.post1.title
             },
             json                    : true,
             resolveWithFullResponse : true,
@@ -518,12 +503,12 @@ describe('Controller Post', () => {
 
     });
 
-    it('Get: user/:user_id/post/:id should return 404 post not found', async () => {
+    it('Get: user/:userId/post/:id should return 404 post not found', async () => {
         
-        let result = await Request({
+        let result = await request({
             method                  : 'GET',
-            uri                     : Config.api.url + `user/${instances.user.id}/post/${instances.post_1.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri                     : config.api.url + `user/${instances.user.id}/post/${instances.post1.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -533,13 +518,13 @@ describe('Controller Post', () => {
 
     });
 
-    it('Get: user/:user_id/post/search should return empty array when no post found', async () => {
+    it('Get: user/:userId/post/search should return empty array when no post found', async () => {
         
-        let result = await Request({
+        let result = await request({
             method : 'GET',
-            uri    : Config.api.url + `user/${instances.user.id}/posts/search` + 
-            `?tags[0]=${instances.tag_1.id}`,
-            headers                 : { 'authorization': fixtures.user_token },
+            uri    : config.api.url + `user/${instances.user.id}/posts/search` + 
+            `?tags[0]=${instances.tag1.id}`,
+            headers                 : { 'authorization': fixtures.userToken },
             json                    : true,
             resolveWithFullResponse : true,
             simple                  : false
@@ -554,9 +539,9 @@ describe('Controller Post', () => {
     after( async () => {
 
         await instances.user.destroy();
-        await instances.tag_1.destroy();
-        await instances.tag_2.destroy();
-        await instances.post_2.destroy();
+        await instances.tag1.destroy();
+        await instances.tag2.destroy();
+        await instances.post2.destroy();
 
     });
 

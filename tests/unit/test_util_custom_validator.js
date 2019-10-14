@@ -1,23 +1,23 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const { CustomValidator, CustomSanitizer} = require('../../utils/custom_validator');
-const Should = require('should');
+const { customValidator, customSanitizer} = require('../../utils/custom_validator');
+const should = require('should');
 
 describe('Custom Validator', () => {
 
-    it('CustomValidator.int_array should throw error when value is not array', () => {
+    it('customValidator.intArray should throw error when value is not array', () => {
 
-        let test_cases = [
+        let testCases = [
             'test',
             2,
             false,
             { a: 1 }
         ];
 
-        for (let test_case of test_cases ) {
+        for (let testCase of testCases ) {
             try {
-                CustomValidator.int_array(test_case);
+                customValidator.intArray(testCase);
                 throw new Error('shold throw error here');
             } catch(e) {
                 e.message.should.equal('value should be array');
@@ -26,17 +26,17 @@ describe('Custom Validator', () => {
 
     });
 
-    it('CustomValidator.int_array should throw error when value is not int array', () => {
+    it('customValidator.intArray should throw error when value is not int array', () => {
 
-        let test_cases = [
+        let testCases = [
             [ '1', '2rt' ],
             [ false, true ],
             [{ a: 1 }, { b: 2 }]
         ];
 
-        for (let test_case of test_cases ) {
+        for (let testCase of testCases ) {
             try {
-                CustomValidator.int_array(test_case);
+                customValidator.intArray(testCase);
                 throw new Error('shold throw error here'); 
             } catch(e) {
                 e.message.should.equal('value should be array of int');
@@ -45,22 +45,22 @@ describe('Custom Validator', () => {
 
     });
 
-    it('CustomValidator.int_array pass when value is int array', () => {
+    it('customValidator.intArray pass when value is int array', () => {
 
-        let test_cases = [
+        let testCases = [
             [ '1', '2' ],
             [ 3, 4 ]
         ];
 
-        for (let test_case of test_cases ) {
-            CustomValidator.int_array(test_case);
+        for (let testCase of testCases ) {
+            customValidator.intArray(testCase);
         }    
 
     });
 
-    it('CustomValidator.image_link should throw error when value is not image link', () => {
+    it('customValidator.imageLink should throw error when value is not image link', () => {
 
-        let test_cases = [
+        let testCases = [
             2,
             false,
             { a: 1 },
@@ -70,9 +70,9 @@ describe('Custom Validator', () => {
             'not link'
         ];
 
-        for (let test_case of test_cases ) {
+        for (let testCase of testCases ) {
             try {
-                CustomValidator.image_link(test_case);
+                customValidator.imageLink(testCase);
                 throw new Error('shold throw error here');
             } catch(e) {
                 e.message.should.equal('not an image link');
@@ -81,24 +81,24 @@ describe('Custom Validator', () => {
 
     });
 
-    it('CustomValidator.image_link should pass when value is image link', () => {
+    it('customValidator.imageLink should pass when value is image link', () => {
 
-        let test_cases = [
+        let testCases = [
             'https://www.image.org/123.jpg',
             'http://image.png',
             'http://image.gif',
             'https://www.image.org/123.svg'
         ];
 
-        for (let test_case of test_cases ) {
-            CustomValidator.image_link(test_case);
+        for (let testCase of testCases ) {
+            customValidator.imageLink(testCase);
         }    
 
     });
 
-    it('CustomSanitizer.to_int should convert value to int or int array', () => {
+    it('customSanitizer.toInt should convert value to int or int array', () => {
 
-        let test_cases = [
+        let testCases = [
            {
                input  : ['12', '23'],
                output : [12, 23]
@@ -109,8 +109,8 @@ describe('Custom Validator', () => {
            }
         ];
 
-        for (let test_case of test_cases ) {
-            CustomSanitizer.to_int(test_case.input).should.eql(test_case.output);
+        for (let testCase of testCases ) {
+            customSanitizer.toInt(testCase.input).should.eql(testCase.output);
         }    
 
     });

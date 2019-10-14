@@ -1,41 +1,40 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const Auth        = require('../../utils/auth');
-const Should      = require('should');
-const Permissions = require('../../utils/permissions');
-const UserFixture = require('../fixtures/user');
-const Chance      = require('chance');
+const auth         = require('../../utils/auth');
+const should       = require('should');
+const permissions  = require('../../utils/permissions');
+const Chance       = require('chance');
 
-describe('Service Auth:', () => {
+describe('Service auth:', () => {
 
     let chance = new Chance();
     let fixtures = {
-        test_user_id : chance.integer()
+        testUserId : chance.integer()
     };
     
     before(() => {
-        fixtures.user_permissions = [
-            Permissions.VISITOR,
-            Permissions.VALID_USER(fixtures.test_user_id)
+        fixtures.userPermissions = [
+            permissions.VISITOR,
+            permissions.VALID_USER(fixtures.testUserId)
         ];
-        fixtures.visitor_permissions = [
-            Permissions.VISITOR
+        fixtures.visitorPermissions = [
+            permissions.VISITOR
         ];
     });
 
-    it('Auth.IsUser should return true if user is validated', async () => {
+    it('auth.isUser should return true if user is validated', async () => {
 
-        let result = Auth.IsUser(fixtures.user_permissions, fixtures.test_user_id);
+        let result = auth.isUser(fixtures.userPermissions, fixtures.testUserId);
         result.should.equal(true);
 
     });
 
-    it('Auth.IsUser should throw error 401 when permissions are invalid (user id mismatch)', async () => {
+    it('auth.isUser should throw error 401 when permissions are invalid (user id mismatch)', async () => {
         
         try {
             
-            let result = Auth.IsUser(fixtures.user_permissions, fixtures.test_user_id + 1);
+            let result = auth.isUser(fixtures.userPermissions, fixtures.testUserId + 1);
             throw new Error('should not reach this line');
         
         } catch(e) {
@@ -44,11 +43,11 @@ describe('Service Auth:', () => {
 
     });
 
-    it('Auth.IsUser should throw error 401 when permissions are invalid (lack of permission)', async () => {
+    it('auth.isUser should throw error 401 when permissions are invalid (lack of permission)', async () => {
         
         try {
             
-            let result = Auth.IsUser(fixtures.visitor_permissions, fixtures.test_user_id);
+            let result = auth.isUser(fixtures.visitorPermissions, fixtures.testUserId);
             throw new Error('should not reach this line');
         
         } catch(e) {
@@ -57,11 +56,11 @@ describe('Service Auth:', () => {
 
     });
 
-    it('Auth.IsUser should throw error 401 when permissions is not an array', async () => {
+    it('auth.isUser should throw error 401 when permissions is not an array', async () => {
         
         try {
 
-            let result = Auth.IsUser('admin permission', fixtures.test_user_id);
+            let result = auth.isUser('admin permission', fixtures.testUserId);
             throw new Error('should not reach this line');
     
         } catch(e) {
@@ -71,20 +70,20 @@ describe('Service Auth:', () => {
 
     });
 
-    it('Auth.IsVisitor should return true if user is validated', async () => {
+    it('auth.isVisitor should return true if user is validated', async () => {
 
-        let result_visitor = Auth.IsVisitor(fixtures.visitor_permissions);
-        let result_user = Auth.IsVisitor(fixtures.visitor_permissions);
-        result_visitor.should.equal(true);
-        result_user.should.equal(true);
+        let resultVisitor = auth.isVisitor(fixtures.visitorPermissions);
+        let resultUser = auth.isVisitor(fixtures.visitorPermissions);
+        resultVisitor.should.equal(true);
+        resultUser.should.equal(true);
 
     });
 
-    it('Auth.IsVisitor should throw error 401 when permissions are invalid', async () => {
+    it('auth.isVisitor should throw error 401 when permissions are invalid', async () => {
         
         try {
 
-            let result = Auth.IsVisitor([]);
+            let result = auth.isVisitor([]);
             throw new Error('should not reach this line');
         
         } catch(e) {
@@ -93,11 +92,11 @@ describe('Service Auth:', () => {
 
     });
 
-    it('Auth.IsVisitor should throw error 401 when permissions is not an array', async () => {
+    it('auth.isVisitor should throw error 401 when permissions is not an array', async () => {
         
         try {
             
-            let result = Auth.IsVisitor('visitor');
+            let result = auth.isVisitor('visitor');
             throw new Error('should not reach this line');
         
         } catch(e) {

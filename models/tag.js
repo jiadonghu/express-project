@@ -1,8 +1,8 @@
-const Mysql       = require('../database').mysql;
+const { mysql }   = require('../database');
 const Sequelize   = require('sequelize');
 const Op          = Sequelize.Op;
 
-const Tag = Mysql.define('Tag', {
+const Tag = mysql.define('Tag', {
     id : { 
         type          : Sequelize.INTEGER, 
         primaryKey    : true, 
@@ -10,14 +10,20 @@ const Tag = Mysql.define('Tag', {
     },
     name : {
         type : Sequelize.STRING(100),
-    }
+    },
+    // createdAt : {
+    //     type: Sequelize.DATE
+    // },
+    // updatedAt : {
+    //     type: Sequelize.DATE
+    // }
 }, {
     tableName : 'tag',
     createdAt : false,
     updatedAt : false,
 });
 
-Tag.SearchByName = async (name = '') => {
+Tag.searchByName = async (name = '') => {
     return await Tag.findAll({
         where : {
           name : {
@@ -29,6 +35,6 @@ Tag.SearchByName = async (name = '') => {
 
 module.exports = Tag;
 
-const BlogPost = require('./blog_post');
+const Post = require('./blog_post');
 
-Tag.belongsToMany(BlogPost, { through: 'post_tag', foreignKey: 'tag_id', otherKey: 'post_id' });
+Tag.belongsToMany(Post, { through: 'post_tag', foreignKey: 'tagId', otherKey: 'postId' });

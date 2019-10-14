@@ -1,35 +1,34 @@
-const Express        = require('express');
-const RouterRegister = require('./utils/controller_register');
-const Config         = require('./config');
-const App            = Express();
-const BodyParser     = require('body-parser');
-const Token          = require('./utils/token');
-const Cors           = require('cors');
+const express        = require('express');
+const app            = express();
+const routerRegister = require('./utils/controller_register');
+const config         = require('./config');
+const bodyParser     = require('body-parser');
+const token          = require('./utils/token');
+const cors           = require('cors');
 
-App.use(Cors());
-App.use(Token.Decode);
-App.use(BodyParser.urlencoded({ extended: false }));
-App.use(BodyParser.json());
+app.use(cors());
+app.use(token.decode);
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-RouterRegister.Register(App, 
+routerRegister.register(app, 
   {
-    'User' : require('./controllers/user'),
-    'Post' : require('./controllers/post'),
-    'Tag'  : require('./controllers/tag')
+    'user' : require('./controllers/user'),
+    'post' : require('./controllers/post'),
+    'tag'  : require('./controllers/tag')
   }
 );
 
 // handle error and response
-App.use(function (err, req, res, next) {
+app.use(function (err, req, res, next) {
 
     if (err.statusCode) {
       return res.status(err.statusCode).json(err.message);
     }
     
-    console.log('----------')
-    console.log(err.message)
+    console.log(err.message);
     // Unexpected error
     throw err;
 });
 
-App.listen(Config.api.port);
+app.listen(config.api.port);

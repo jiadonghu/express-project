@@ -3,7 +3,7 @@ const chance = new Chance();
 
 module.exports = {
 
-    Random : () => {
+    random : () => {
         return {
             email    : chance.email({ domain: 'testuser.com' }),
             name     : chance.name(),

@@ -1,15 +1,14 @@
-const Mysql       = require('../database').mysql;
+const { mysql }   = require('../database');
 const Sequelize   = require('sequelize');
-const Promise     = require('bluebird');
 const HttpError   = require('http-errors'); 
 
-const BlogPost = Mysql.define('BlogPost', {
+const Post = mysql.define('Post', {
     id : { 
         type          : Sequelize.INTEGER, 
         primaryKey    : true, 
         autoIncrement : true 
     },
-    user_id : { 
+    userId : { 
         type      : Sequelize.INTEGER, 
         allowNull : false
     },
@@ -35,32 +34,32 @@ const BlogPost = Mysql.define('BlogPost', {
 
 // Instance Methods
 
-BlogPost.prototype.syncTags = async function(new_tag_ids) {
+Post.prototype.syncTags = async function(newTagIds) {
 
-    let tag_ids_clone = [...new_tag_ids];
-    let db_post_tags = await PostTag.findAll({ where: { post_id: this.id } });
+    let tagIdsClone = [...newTagIds];
+    let dbPostTags = await PostTag.findAll({ where: { postId: this.id } });
 
-    for (let item of db_post_tags) {
-        if (tag_ids_clone.indexOf(item.id) == -1) {
+    for (let item of dbPostTags) {
+        if (tagIdsClone.indexOf(item.id) == -1) {
             await item.destroy();
         } else {
-            tag_ids_clone.splice(tag_ids_clone.indexOf(item.id), 1);
+            tagIdsClone.splice(tagIdsClone.indexOf(item.id), 1);
         }
     }
    
-    for (let tag_id of tag_ids_clone) {
+    for (let tagId of tagIdsClone) {
         await PostTag.create({
-            post_id : this.id,
-            tag_id  : tag_id
+            postId : this.id,
+            tagId  : tagId
         });
     }
 };
 
-module.exports = BlogPost;
+module.exports = Post;
 
 const Tag     = require('./tag');
 const PostTag = require('./post_tag');
 
 // association
-BlogPost.belongsToMany(Tag, { as: 'tags', through: 'post_tag', foreignKey: 'post_id', otherKey: 'tag_id' });
-BlogPost.hasMany(PostTag, { foreignKey: 'post_id', onDelete: 'CASCADE', hooks : true });
+Post.belongsToMany(Tag, { as: 'tags', through: 'post_tag', foreignKey: 'postId', otherKey: 'tagId' });
+Post.hasMany(PostTag, { foreignKey: 'postId', onDelete: 'CASCADE', hooks : true });

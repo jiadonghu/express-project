@@ -1,9 +1,9 @@
-const PostFixture = require('./blog_post');
-const UserFixture = require('./user');
-const TagFixture = require('./tag');
+const postFixture = require('./blog_post');
+const userFixture = require('./user');
+const tagFixture  = require('./tag');
 
 module.exports = {
-    PostFixture,
-    UserFixture,
-    TagFixture
+    postFixture,
+    userFixture,
+    tagFixture
 };

@@ -3,7 +3,7 @@ const chance = new Chance();
 
 module.exports = {
 
-    Random : () => {
+    random : () => {
         return {
             // never rturn the same name
             name : chance.guid().toString()

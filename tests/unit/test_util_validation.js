@@ -1,96 +1,96 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const Should = require('should');
+const should = require('should');
 const Chance = require('chance');
 const chance = new Chance();  
-const Validations = require('../../utils/validation');
+const validations = require('../../utils/validation');
 const { validationResult } = require('express-validator');
 
-const run_validation = async (val_array, req) => {
-    for (let val_func of val_array) {
-        await val_func(req, {}, () => {});
+const runValidation = async (valArray, req) => {
+    for (let valFunc of valArray) {
+        await valFunc(req, {}, () => {});
     }
     return validationResult(req).errors.map(err => err.param);
 };
 
 describe('Util Validation User', async () => {
 
-    it('User.GetUser should pass', async () => {
+    it('user.getUser should pass', async () => {
 
-        let mock_req = {
+        let mockReq = {
             params : {
                 id : '1'
             }
         };
-        let result = await run_validation(Validations.User.GetUser, mock_req);
-        mock_req.params.id.should.equal(1);
+        let result = await runValidation(validations.user.getUser, mockReq);
+        mockReq.params.id.should.equal(1);
         result.length.should.equal(0);
 
     });
 
-    it('User.GetUser should have error', async () => {
+    it('user.getUser should have error', async () => {
 
-        let mock_req = {
+        let mockReq = {
             params : {
                 id : false
             }
         };
-        let result = await run_validation(Validations.User.GetUser, mock_req);
+        let result = await runValidation(validations.user.getUser, mockReq);
         result.should.eql(['id']);
 
     });
 
-    it('User.Login should pass', async () => {
+    it('user.login should pass', async () => {
 
-        let mock_req = {
+        let mockReq = {
             body : {
                 email    : chance.email(),
                 password : chance.word({ length: 99 })
             }
         };
-        let result = await run_validation(Validations.User.Login, mock_req);
+        let result = await runValidation(validations.user.login, mockReq);
         result.length.should.equal(0);
 
     });
 
-    it('User.Login should have error', async () => {
+    it('user.login should have error', async () => {
         
-        let mock_req = {
+        let mockReq = {
             body : {
                 email    : chance.word({ length: 10 }),
                 password : chance.word({ length: 129 })
             }
         };
-        let result = await run_validation(Validations.User.Login, mock_req);
+        let result = await runValidation(validations.user.login, mockReq);
         result.should.eql(['email', 'password']);
 
     });
 
-    it('User.Register should pass', async () => {
+    it('user.register should pass', async () => {
         
-        let mock_req = {
+        let mockReq = {
             body : {
                 email    : chance.email(),
                 password : chance.word({ length: 99 }),
                 name     : chance.word({ length: 99 }),
             }
         };
-        let result = await run_validation(Validations.User.Register, mock_req);
+        let result = await runValidation(validations.user.register, mockReq);
         result.length.should.equal(0);
 
     });
         
-    it('User.Register should have error', async () => {
+    it('user.register should have error', async () => {
         
-        let mock_req = {
+        let mockReq = {
             body : {
                 email    : chance.word({ length: 10 }),
                 password : chance.word({ length: 129 }),
                 name     : chance.word({ length: 101 }),
             }
         };
-        let result = await run_validation(Validations.User.Register, mock_req);
+        let result = await runValidation(validations.user.register, mockReq);
         result.should.eql(['email', 'password', 'name']);
 
     });
@@ -99,52 +99,52 @@ describe('Util Validation User', async () => {
 
 describe('Util Validation Tag', async () => {
 
-    it('Tag.CreateTag should pass', async () => {
-        let mock_req = {
+    it('tag.createTag should pass', async () => {
+        let mockReq = {
             body : {
                 name : chance.word({ length: 100 })
             }
         };
-        let result = await run_validation(Validations.Tag.CreateTag, mock_req);
+        let result = await runValidation(validations.tag.createTag, mockReq);
         result.length.should.equal(0);
     });
 
-    it('Tag.CreateTag should have error', async () => {
-        let mock_req = {
+    it('tag.createTag should have error', async () => {
+        let mockReq = {
             body : {
                 name : chance.word({ length: 101 })
             }
         };
-        let result = await run_validation(Validations.Tag.CreateTag, mock_req);
+        let result = await runValidation(validations.tag.createTag, mockReq);
         result.should.eql(['name']);
     });
 
-    it('Tag.SearchTags should pass', async () => {
-        let mock_req = {
+    it('tag.searchTags should pass', async () => {
+        let mockReq = {
             query : {
                 name : chance.word({ length: 100 })
             }
         };
-        let result = await run_validation(Validations.Tag.SearchTags, mock_req);
+        let result = await runValidation(validations.tag.searchTags, mockReq);
         result.length.should.equal(0);
     });
 
-    it('Tag.SearchTags should pass with minimum params', async () => {
-        let mock_req = {
+    it('tag.searchTags should pass with minimum params', async () => {
+        let mockReq = {
             params : {},
             query  : {}
         };
-        let result = await run_validation(Validations.Tag.SearchTags, mock_req);
+        let result = await runValidation(validations.tag.searchTags, mockReq);
         result.length.should.equal(0);
     });
 
-    it('Tag.SearchTags should have error', async () => {
-        let mock_req = {
+    it('tag.searchTags should have error', async () => {
+        let mockReq = {
             query : {
                 name : chance.word({ length: 101 })
             }
         };
-        let result = await run_validation(Validations.Tag.SearchTags, mock_req);
+        let result = await runValidation(validations.tag.searchTags, mockReq);
         result.should.eql(['name']);
     });
 
@@ -152,34 +152,34 @@ describe('Util Validation Tag', async () => {
 
 describe('Util Validation Post', async () => {
 
-    it('Post.GetPost should pass', async () => {
-        let mock_req = {
+    it('post.getPost should pass', async () => {
+        let mockReq = {
             params : {
-                user_id : '1',
-                id      : '1'
+                userId : '1',
+                id     : '1'
             }
         };
-        let result = await run_validation(Validations.Post.GetPost, mock_req);
-        mock_req.params.user_id.should.equal(1);
-        mock_req.params.id.should.equal(1);
+        let result = await runValidation(validations.post.getPost, mockReq);
+        mockReq.params.userId.should.equal(1);
+        mockReq.params.id.should.equal(1);
         result.length.should.equal(0);
     });
 
-    it('Post.GetPost should have error', async () => {
-        let mock_req = {
+    it('post.getPost should have error', async () => {
+        let mockReq = {
             params : {
-                user_id : chance.word({ length: 5 }),
-                id      : chance.word({ length: 5 })
+                userId : chance.word({ length: 5 }),
+                id     : chance.word({ length: 5 })
             }
         };
-        let result = await run_validation(Validations.Post.GetPost, mock_req);
-        result.should.eql(['id', 'user_id']);
+        let result = await runValidation(validations.post.getPost, mockReq);
+        result.should.eql(['id', 'userId']);
     });
 
-    it('Post.CreatePost should pass', async () => {
-        let mock_req = {
+    it('post.createPost should pass', async () => {
+        let mockReq = {
             params : {
-                user_id : '1',
+                userId : '1',
             },
             body : {
                 title     : chance.word({ length: 5 }),
@@ -189,29 +189,29 @@ describe('Util Validation Post', async () => {
                 published : 'false'
             }
         };
-        let result = await run_validation(Validations.Post.CreatePost, mock_req);
-        mock_req.params.user_id.should.equal(1);
-        mock_req.body.tags.should.eql([1, 2]);
+        let result = await runValidation(validations.post.createPost, mockReq);
+        mockReq.params.userId.should.equal(1);
+        mockReq.body.tags.should.eql([1, 2]);
         result.length.should.equal(0);
     });
 
-    it('Post.CreatePost should pass with minimum params', async () => {
-        let mock_req = {
+    it('post.createPost should pass with minimum params', async () => {
+        let mockReq = {
             params : {
-                user_id : 1,
+                userId : 1,
             },
             body : {
                 title : chance.word({ length: 5 })
             }
         };
-        let result = await run_validation(Validations.Post.CreatePost, mock_req);
+        let result = await runValidation(validations.post.createPost, mockReq);
         result.length.should.equal(0);
     });
 
-    it('Post.CreatePost should have error', async () => {
-        let mock_req = {
+    it('post.createPost should have error', async () => {
+        let mockReq = {
             params : {
-                user_id : chance.word({ length: 5 }),
+                userId : chance.word({ length: 5 }),
             },
             body : {
                 title     : chance.word({ length: 101 }),
@@ -221,16 +221,16 @@ describe('Util Validation Post', async () => {
                 published : chance.word({ length: 1 })
             }
         };
-        let result = await run_validation(Validations.Post.CreatePost, mock_req);
+        let result = await runValidation(validations.post.createPost, mockReq);
     
-        result.should.eql(['user_id', 'title', 'content', 'tags', 'image', 'published']);
+        result.should.eql(['userId', 'title', 'content', 'tags', 'image', 'published']);
     });
 
-    it('Post.UpdatePost should pass', async () => {
-        let mock_req = {
+    it('post.updatePost should pass', async () => {
+        let mockReq = {
             params : {
-                user_id : '1',
-                id      : '1'
+                userId : '1',
+                id     : '1'
             },
             body : {
                 title     : chance.word({ length: 5 }),
@@ -240,31 +240,31 @@ describe('Util Validation Post', async () => {
                 published : 'false'
             }
         };
-        let result = await run_validation(Validations.Post.UpdatePost, mock_req);
-        mock_req.params.user_id.should.equal(1);
-        mock_req.params.id.should.equal(1);        
-        mock_req.body.tags.should.eql([1, 2]);
+        let result = await runValidation(validations.post.updatePost, mockReq);
+        mockReq.params.userId.should.equal(1);
+        mockReq.params.id.should.equal(1);        
+        mockReq.body.tags.should.eql([1, 2]);
         result.length.should.equal(0);
     });
 
-    it('Post.UpdatePost should pass with minimum params', async () => {
-        let mock_req = {
+    it('post.updatePost should pass with minimum params', async () => {
+        let mockReq = {
             params : {
-                user_id : '1',
-                id      : '1'
+                userId : '1',
+                id     : '1'
             },
             body : {
                 title : chance.word({ length: 5 })
             }
         };
-        let result = await run_validation(Validations.Post.UpdatePost, mock_req);
+        let result = await runValidation(validations.post.updatePost, mockReq);
         result.length.should.equal(0);
     });
 
-    it('Post.UpdatePost should have error', async () => {
-        let mock_req = {
+    it('post.updatePost should have error', async () => {
+        let mockReq = {
             params : {
-                user_id : chance.word({ length: 5 }),
+                userId  : chance.word({ length: 5 }),
                 id      : chance.word({ length: 5 })
             },
             body : {
@@ -275,74 +275,74 @@ describe('Util Validation Post', async () => {
                 published : chance.word({ length: 1 })
             }
         };
-        let result = await run_validation(Validations.Post.UpdatePost, mock_req);
+        let result = await runValidation(validations.post.updatePost, mockReq);
     
-        result.should.eql([ 'id', 'user_id', 'title', 'content', 'tags', 'image', 'published']);
+        result.should.eql([ 'id', 'userId', 'title', 'content', 'tags', 'image', 'published']);
     });
 
-    it('Post.DeletePost should pass', async () => {
-        let mock_req = {
+    it('post.deletePost should pass', async () => {
+        let mockReq = {
             params : {
-                user_id : '1',
+                userId : '1',
                 id      : '1'
             }
         };
-        let result = await run_validation(Validations.Post.DeletePost, mock_req);
-        mock_req.params.user_id.should.equal(1);
-        mock_req.params.id.should.equal(1);
+        let result = await runValidation(validations.post.deletePost, mockReq);
+        mockReq.params.userId.should.equal(1);
+        mockReq.params.id.should.equal(1);
         result.length.should.equal(0);
     });
 
-    it('Post.DeletePost should have error', async () => {
-        let mock_req = {
+    it('post.deletePost should have error', async () => {
+        let mockReq = {
             params : {
-                user_id : chance.word({ length: 5 }),
+                userId : chance.word({ length: 5 }),
                 id      : chance.word({ length: 5 })
             }
         };
-        let result = await run_validation(Validations.Post.DeletePost, mock_req);   
-        result.should.eql(['id', 'user_id']);
+        let result = await runValidation(validations.post.deletePost, mockReq);   
+        result.should.eql(['id', 'userId']);
     });
 
-    it('Post.SearchPosts should pass', async () => {
-        let mock_req = {
+    it('post.searchPosts should pass', async () => {
+        let mockReq = {
             params : {
-                user_id : '1'
+                userId : '1'
             },
             query : {
                 tags      : ['1', '2'],
                 published : 'true'
             }
         };
-        let result = await run_validation(Validations.Post.SearchPosts, mock_req);
-        mock_req.params.user_id.should.equal(1);
-        mock_req.query.tags.should.eql([1, 2]);
-        mock_req.query.published.should.equal(true);
+        let result = await runValidation(validations.post.searchPosts, mockReq);
+        mockReq.params.userId.should.equal(1);
+        mockReq.query.tags.should.eql([1, 2]);
+        mockReq.query.published.should.equal(true);
         result.length.should.equal(0);
     });
 
-    it('Post.SearchPosts should pass with minimum params ', async () => {
-        let mock_req = {
+    it('post.searchPosts should pass with minimum params ', async () => {
+        let mockReq = {
             params : {
-                user_id : '1'
+                userId : '1'
             }
         };
-        let result = await run_validation(Validations.Post.SearchPosts, mock_req);
+        let result = await runValidation(validations.post.searchPosts, mockReq);
         result.length.should.equal(0);
     });
 
-    it('Post.SearchPosts should have error', async () => {
-        let mock_req = {
+    it('post.searchPosts should have error', async () => {
+        let mockReq = {
             params : {
-                user_id : chance.word({ length: 5 })
+                userId : chance.word({ length: 5 })
             },
             query : {
                 tags      : [chance.word({ length: 5 })],
                 published : chance.word({ length: 5 })
             }
         };
-        let result = await run_validation(Validations.Post.SearchPosts, mock_req);
-        result.should.eql(['user_id', 'tags', 'published']);
+        let result = await runValidation(validations.post.searchPosts, mockReq);
+        result.should.eql(['userId', 'tags', 'published']);
     });
 
 });

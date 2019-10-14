@@ -1,6 +1,6 @@
 const HttpError = require('http-errors');
-const Jwt       = require('jsonwebtoken');
-const Config    = require('../config');
+const jwt       = require('jsonwebtoken');
+const config    = require('../config');
 
 module.exports = {
     
@@ -12,7 +12,7 @@ module.exports = {
      * @param   {Func}  next    - Express next()
      * @return  {Null}                      
      */
-    Decode : (req, res, next) => {
+    decode : (req, res, next) => {
 
         let token = req.header('authorization');
 
@@ -23,14 +23,14 @@ module.exports = {
         let decoded;
         
         try {
-            decoded = Jwt.verify(token, Config.jwt.secret);
+            decoded = jwt.verify(token, config.jwt.secret);
         } catch (e) {
             throw new HttpError(401, 'invalid token');
         }
 
         req.permissions = decoded.permissions;
-        if (decoded.user_id) {
-            req.user_id = decoded.user_id;
+        if (decoded.userId) {
+            req.userId = decoded.userId;
         }
         
         next();

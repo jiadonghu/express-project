@@ -1,17 +1,17 @@
 // set env param as test 
 process.env.NODE_ENV = 'test';
 
-const Should    = require('should');
-const Token     = require('../../utils/token');
-const Jwt       = require('jsonwebtoken');
-const Config    = require('../../config');
+const should    = require('should');
+const token     = require('../../utils/token');
+const jwt       = require('jsonwebtoken');
+const config    = require('../../config');
 const Promise   = require('bluebird');
 
 describe('Utils Token',  () => {
 
     let fixtures = {
         payload : { 
-            user_id     : 1, 
+            userId     : 1, 
             permissions : [
                 'my.test.permissions'
             ] 
@@ -20,53 +20,53 @@ describe('Utils Token',  () => {
 
     before(() => {
 
-        fixtures.vaild = Jwt.sign(
+        fixtures.vaild = jwt.sign(
             fixtures.payload,
-            Config.jwt.secret,
+            config.jwt.secret,
             { expiresIn: 60 * 1000 }
         );
 
-        fixtures.invalid = Jwt.sign(
+        fixtures.invalid = jwt.sign(
             fixtures.payload,
             'xxxx',
             { expiresIn: 60 * 1000 }
         );
 
-        fixtures.expired = Jwt.sign(
+        fixtures.expired = jwt.sign(
             fixtures.payload,
-            Config.jwt.secret,
+            config.jwt.secret,
             { expiresIn: 1 }
         );
 
     });
     
-    it('Token.Decode should pass when token is not attached', async () => {
+    it('token.decode should pass when token is not attached', async () => {
 
         let flag = false;
-        let mock_req = {
+        let mockReq = {
             header : () => {
                 return;
             }
         };
-        let mock_next = () => { flag = true; };
+        let mockNext = () => { flag = true; };
 
-        Token.Decode(mock_req, {}, mock_next);
+        token.decode(mockReq, {}, mockNext);
 
         flag.should.equal(true);
     });
 
-    it('Token.Decode should throw error when token is invalid', async () => {
+    it('token.decode should throw error when token is invalid', async () => {
 
         let flag = false;
-        let mock_req = {
+        let mockReq = {
             header : () => {
                 return fixtures.invalid;
             }
         };
-        let mock_next = () => { flag = true; };
+        let mockNext = () => { flag = true; };
 
         try {
-            Token.Decode(mock_req, {}, mock_next);
+            token.decode(mockReq, {}, mockNext);
             throw new Error('error here');
         } catch(e) {
             e.message.should.equal('invalid token');
@@ -74,20 +74,20 @@ describe('Utils Token',  () => {
       
     });
 
-    it('Token.Decode should throw error when token is expired', async () => {
+    it('token.decode should throw error when token is expired', async () => {
 
         let flag = false;
-        let mock_req = {
+        let mockReq = {
             header : () => {
                 return fixtures.expired;
             }
         };
-        let mock_next = () => { flag = true; };
+        let mockNext = () => { flag = true; };
 
         await Promise.delay(1000);
         
         try {
-            Token.Decode(mock_req, {}, mock_next);
+            token.decode(mockReq, {}, mockNext);
             throw new Error('error here');
         } catch(e) {
             e.message.should.equal('invalid token');
@@ -95,20 +95,20 @@ describe('Utils Token',  () => {
       
     });
 
-    it('Token.Decode should decode token when token is valid', async () => {
+    it('token.decode should decode token when token is valid', async () => {
 
         let flag = false;
-        let mock_req = {
+        let mockReq = {
             header : () => {
                 return fixtures.vaild;
             }
         };
-        let mock_next = () => { flag = true; };
+        let mockNext = () => { flag = true; };
 
-        Token.Decode(mock_req, {}, mock_next);
+        token.decode(mockReq, {}, mockNext);
 
         flag.should.equal(true);
-        mock_req.user_id.should.equal(fixtures.payload.user_id);
-        mock_req.permissions.should.eql(fixtures.payload.permissions)
+        mockReq.userId.should.equal(fixtures.payload.userId);
+        mockReq.permissions.should.eql(fixtures.payload.permissions)
     });
 });
